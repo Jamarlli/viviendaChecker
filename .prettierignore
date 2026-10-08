@@ -1,0 +1,5 @@
+.output/
+.wxt/
+package-lock.json
+LICENSE
+*.md
