@@ -43,6 +43,16 @@ Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre
 - [ ] Error o caída del Catastro → mensaje claro, sin romper el panel.
 - [ ] Provincias forales → "no soportado".
 
+## Cliente Catastro (`adapters/catastro`)
+Devuelve `Resultado<T>` (`ok`/`error`), nunca lanza. Errores: `noSoportado` · `sinResultados` (cód. OVC 5 y 43, o lista vacía) · `api` (otro código o JSON inválido) · `red` (fallo de fetch o HTTP no 2xx).
+
+Formato real (fixtures en `fixtures/catastro/`):
+- Varios inmuebles → `lrcdnp.rcdnp[]`; uno solo → objeto `bico.bi`. Se normalizan a lista.
+- `Sigla` es obligatoria: vacía → "no existe ningún inmueble".
+- Número inexistente → error 43 con `numerero` (números cercanos); se ignoran.
+- `RCCOOR_Distancia` devuelve parcelas (14 car.) con `dis` en metros; en forales, lista vacía.
+- Sin `ant` (solares) → `anio: 0`. `pt`/`pu` se copian tal cual (`00`, `-1`, `OD`…).
+
 ## Dudas
 - Pesos y umbrales iniciales; se ajustan con 20+ anuncios reales.
 - `sfc` del Catastro incluye zonas comunes; validar con fixtures.
