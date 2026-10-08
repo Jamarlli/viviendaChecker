@@ -2,6 +2,11 @@
 
 Detecta en la descripción situaciones que el comprador debe conocer. Solo reglas, sin LLM.
 
+## Modelo
+```ts
+Alerta { tipo: 'ocupado' | 'subasta' | 'nudaPropiedad' | 'alquilado' | 'proteccionOficial' | 'sinVisitas' | 'proindiviso'; frase: string }
+```
+
 ## Alertas
 | Tipo | Ejemplos de patrón |
 |---|---|
