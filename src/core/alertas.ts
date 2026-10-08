@@ -13,6 +13,8 @@ const PATRONES: Record<TipoAlerta, Patron[]> = {
   ocupado: [
     p(/\bocupad[oa]s?\b/, /^ por (sus?|el|la|los|las) (propietari|duen)/),
     p(/\bokupa(s|d[oa]s?)?\b/),
+    // Sin k suele ser verbo ("el salón ocupa 30 m²"): solo plural o tras determinante.
+    p(/\b(un|el|los|con|hay) ocupas?\b|\bocupas\b/),
     p(/\bocupantes\b/),
     p(/\bocupacion ilegal\b/),
     p(/\bsin posesion\b/),
@@ -47,7 +49,7 @@ const PATRONES: Record<TipoAlerta, Patron[]> = {
   sinVisitas: [
     p(/\bno se puede (visitar|ensenar|ver por dentro)\b/),
     p(/\bno se (permiten|admiten|realizan|hacen|aceptan) visitas\b/),
-    p(/\bsin visitas?\b/),
+    p(/\bsin visitas?\b/, /^ virtual/),
     p(/\bsin posibilidad de visita(r|s)?\b/),
     p(/\bno visitable\b/),
     p(/\b(solo|solamente|unicamente|exclusivo|exclusivamente) (para )?inversores\b/),
@@ -58,24 +60,37 @@ const PATRONES: Record<TipoAlerta, Patron[]> = {
     p(/\bpendiente de herencia\b/),
     p(/\b(herencia en tramite|tramite de herencia|herencia yacente)\b/),
     p(/\bherencia (sin|no) (aceptad|adjudicad|repartid)/),
-    p(/\bse vende (el|un|una) \d+([,.]\d+)? ?%/),
+    p(/\bse vende (el|un|una) (?!100\b)\d+([,.]\d+)? ?%/),
   ],
 }
 
-const NEGACION = /\b(no|ni|sin|nunca|tampoco|libres? de|estuvo|estaba|ha estado)\b/
+const NEGACION = /\b(no|ni|sin|nunca|tampoco|libres? de|estuvo|estaba|ha estado)\b/g
+const ARTICULOS = /^((de|del|el|la|los|las|un|una|unos|unas)\s*){0,2}$/
+const FIN_ORACION =
+  /(?<!\b(?:aprox|sra?|sres|dcha|izq|izda|etc|ctra|avda|pza|urb|pta|num|tlf)\.)(?<=[.!?])\s+|\n+/i
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
 
 const oraciones = (texto: string) =>
   texto
-    .split(/(?<=[.!?])\s+|\n+/)
+    .split(FIN_ORACION)
     .map((o) => o.trim())
     .filter(Boolean)
 
-/** Últimas palabras de la misma cláusula antes de la coincidencia. */
+const palabras = (s: string) => s.split(/\s+/).filter(Boolean).length
+
+/**
+ * La última negación de la cláusula cubre la coincidencia si está a ≤3 palabras
+ * o si esta es un elemento de su enumeración ("libre de cargas, ocupantes e inquilinos").
+ */
 const negada = (antes: string) => {
-  const clausula = antes.split(/[,:;()]|\b(?:pero|aunque)\b/).pop() ?? ''
-  return NEGACION.test(clausula.trim().split(/\s+/).slice(-4).join(' '))
+  const clausula = antes.split(/[:;()]|\b(?:pero|aunque)\b/).pop() ?? ''
+  const neg = [...clausula.matchAll(NEGACION)].at(-1)
+  if (!neg) return false
+  const elementos = clausula.slice(neg.index + neg[0].length).split(/,|\b(?:y|e|ni|o)\b/)
+  const ultimo = elementos.pop() ?? ''
+  if (!elementos.length) return palabras(ultimo) <= 3
+  return elementos.every((e) => palabras(e) <= 3) && ARTICULOS.test(ultimo.trim())
 }
 
 const activa = (norm: string, { re, salvo }: Patron) => {

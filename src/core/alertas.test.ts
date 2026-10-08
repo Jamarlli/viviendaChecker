@@ -12,6 +12,10 @@ const positivos: [TipoAlerta, string][] = [
   ['ocupado', 'Activo bancario con ocupantes sin título.'],
   ['ocupado', 'Actualmente la vivienda se encuentra ocupada ilegalmente.'],
   ['ocupado', 'No se entrega la posesión del inmueble.'],
+  ['ocupado', 'Piso con ocupas, precio de oportunidad.'],
+  ['ocupado', 'Vivienda con un ocupa dentro.'],
+  ['ocupado', 'No dude en llamarnos, vivienda ocupada.'],
+  ['alquilado', 'Sin ascensor, vivienda alquilada.'],
   ['subasta', 'Vivienda procedente de subasta judicial.'],
   ['subasta', 'Se vende mediante cesión de remate, precio muy por debajo de mercado.'],
   ['subasta', 'Adjudicación en procedimiento de ejecución hipotecaria.'],
@@ -51,6 +55,12 @@ const positivos: [TipoAlerta, string][] = [
 const negativos: string[] = [
   'La vivienda no está ocupada y se entrega libre.',
   'Libre de cargas y ocupantes.',
+  'Libre de cargas, ocupantes e inquilinos.',
+  'Libre de cargas y de ocupantes.',
+  'Libre de ocupas.',
+  'La terraza ocupa 20 m² y el salón ocupa 30 m².',
+  'Se vende el 100% de la vivienda.',
+  'Sin visitas virtuales, solo presenciales.',
   'Sin okupas ni inquilinos.',
   'El salón ocupa toda la fachada y tiene mucha luz.',
   'Actualmente ocupada por sus propietarios, entrega en 3 meses.',
@@ -106,6 +116,16 @@ describe('detectarAlertas', () => {
     expect(detectarAlertas('Rentabilidad actual del 5.5 % anual.')[0]?.frase).toBe(
       'Rentabilidad actual del 5.5 % anual.',
     )
+  })
+
+  it('no corta la oración en abreviaturas', () => {
+    for (const texto of [
+      'Superficie aprox. 90 m2, alquilado.',
+      'Ctra. de Valencia, 3, 2º dcha. alquilado.',
+      'Avda. del Puerto, piso alquilado a la Sra. García.',
+    ]) {
+      expect(detectarAlertas(texto)).toEqual([{ tipo: 'alquilado', frase: texto }])
+    }
   })
 
   it('una alerta por tipo como máximo', () => {
