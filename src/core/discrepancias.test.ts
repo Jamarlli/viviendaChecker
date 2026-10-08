@@ -1,0 +1,145 @@
+import { describe, expect, it } from 'vitest'
+import { discrepancias } from './discrepancias'
+import type { Anuncio, Inmueble } from './tipos'
+
+const anuncio = (a: Partial<Anuncio> = {}): Anuncio => ({
+  portal: 'idealista',
+  id: '1',
+  url: 'https://www.idealista.com/inmueble/1/',
+  obraNueva: false,
+  descripcion: '',
+  mencionaTrastero: false,
+  mencionaGaraje: false,
+  ...a,
+})
+
+const inmueble = (i: Partial<Inmueble> = {}): Inmueble => ({
+  rc: '0000000AA0000A0001AA',
+  uso: 'Residencial',
+  m2: 100,
+  anio: 2000,
+  planta: '01',
+  puerta: 'A',
+  direccion: 'CL MAYOR 1',
+  ...i,
+})
+
+const de = (a: Anuncio, i = inmueble(), parcela: Inmueble[] = []) =>
+  discrepancias(a, i, 'alta', parcela)
+const nivel = (a: Anuncio, campo: string, i = inmueble(), parcela: Inmueble[] = []) =>
+  de(a, i, parcela).find((d) => d.campo === campo)?.nivel
+
+describe('superficie construida', () => {
+  it.each([
+    [110, 'ok'],
+    [90, 'ok'],
+    [111, 'revisar'],
+    [120, 'revisar'],
+    [80, 'revisar'],
+    [121, 'aviso'],
+    [79, 'aviso'],
+  ])('%i m² frente a 100 → %s', (m2, esperado) => {
+    expect(nivel(anuncio({ m2Construidos: m2 }), 'superficie')).toBe(esperado)
+  })
+
+  it('muestra ambos valores', () => {
+    const d = de(anuncio({ m2Construidos: 90 }))[0]
+    expect(d).toMatchObject({ anuncio: '90 m²', catastro: '100 m²' })
+    expect(d?.explicacion).toBeTruthy()
+  })
+
+  it('prevalece sobre la útil', () => {
+    expect(nivel(anuncio({ m2Construidos: 100, m2Utiles: 50 }), 'superficie')).toBe('ok')
+  })
+})
+
+describe('superficie solo útil', () => {
+  it.each([
+    [100, 'ok'],
+    [70, 'ok'],
+    [101, 'revisar'],
+    [69, 'revisar'],
+  ])('%i m² útiles frente a 100 → %s', (m2, esperado) => {
+    expect(nivel(anuncio({ m2Utiles: m2 }), 'superficie')).toBe(esperado)
+  })
+})
+
+describe('año', () => {
+  it.each([
+    [2002, 'ok'],
+    [1998, 'ok'],
+    [2003, 'revisar'],
+    [1997, 'revisar'],
+  ])('%i frente a 2000 → %s', (anio, esperado) => {
+    expect(nivel(anuncio({ anio }), 'anio')).toBe(esperado)
+  })
+})
+
+describe('uso', () => {
+  it('residencial → ok', () => {
+    expect(nivel(anuncio({ tipo: 'piso' }), 'uso')).toBe('ok')
+  })
+
+  it('no residencial y anuncio de vivienda → aviso', () => {
+    expect(nivel(anuncio({ tipo: 'piso' }), 'uso', inmueble({ uso: 'Comercial' }))).toBe('aviso')
+  })
+
+  it('no residencial y anuncio no de vivienda → no se evalúa', () => {
+    expect(nivel(anuncio({ tipo: 'otro' }), 'uso', inmueble({ uso: 'Comercial' }))).toBeUndefined()
+  })
+})
+
+describe('planta', () => {
+  it.each([
+    ['1', '01', 'ok'],
+    ['bajo', '00', 'ok'],
+    ['bajo', 'BJ', 'ok'],
+    ['2', '01', 'revisar'],
+  ])('anuncio %s, catastro %s → %s', (p, c, esperado) => {
+    expect(nivel(anuncio({ planta: p }), 'planta', inmueble({ planta: c }))).toBe(esperado)
+  })
+})
+
+describe('anexo', () => {
+  const almacen = inmueble({ rc: '0000000AA0000A0002BB', uso: 'Almacen-Estacionamiento' })
+
+  it('menciona trastero y la parcela tiene almacenes → revisar', () => {
+    expect(nivel(anuncio({ mencionaTrastero: true }), 'anexo', inmueble(), [almacen])).toBe(
+      'revisar',
+    )
+  })
+
+  it('menciona garaje y la parcela tiene estacionamientos → revisar', () => {
+    expect(nivel(anuncio({ mencionaGaraje: true }), 'anexo', inmueble(), [almacen])).toBe('revisar')
+  })
+
+  it('sin mención → no se evalúa', () => {
+    expect(nivel(anuncio(), 'anexo', inmueble(), [almacen])).toBeUndefined()
+  })
+
+  it('parcela sin almacenes → no se evalúa', () => {
+    expect(
+      nivel(anuncio({ mencionaTrastero: true }), 'anexo', inmueble(), [inmueble()]),
+    ).toBeUndefined()
+  })
+})
+
+describe('sin dato', () => {
+  it('anuncio vacío → nada', () => {
+    expect(de(anuncio())).toEqual([])
+  })
+})
+
+describe('confianza', () => {
+  const a = anuncio({ m2Construidos: 100, anio: 2000 })
+
+  it('baja → poco fiable', () => {
+    const r = discrepancias(a, inmueble(), 'baja', [])
+    expect(r).toHaveLength(2)
+    expect(r.every((d) => d.pocoFiable)).toBe(true)
+  })
+
+  it('alta → fiable', () => {
+    expect(de(a).some((d) => d.pocoFiable)).toBe(false)
+  })
+})

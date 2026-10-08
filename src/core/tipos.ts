@@ -58,6 +58,8 @@ export interface Discrepancia {
   anuncio?: string
   catastro?: string
   explicacion: string
+  /** Emparejamiento de confianza baja o ninguna. */
+  pocoFiable?: boolean
 }
 
 // 04 · Gastos de compra
