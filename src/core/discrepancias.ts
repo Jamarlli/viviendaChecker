@@ -104,9 +104,9 @@ function uso(a: Anuncio, i: Inmueble): Discrepancia | undefined {
 }
 
 function planta(a: Anuncio, i: Inmueble): Discrepancia | undefined {
-  if (!a.planta || !i.planta) return
   const p = normalizarPlanta(a.planta)
-  const ok = p !== 'otro' && p === normalizarPlanta(i.planta)
+  if (!p || p === 'otro' || !i.planta) return
+  const ok = p === normalizarPlanta(i.planta)
   return {
     campo: 'planta',
     nivel: ok ? 'ok' : 'revisar',

@@ -103,10 +103,14 @@ describe('planta', () => {
     ['bajo', 'BJ', 'ok'],
     ['2', '01', 'revisar'],
     ['atico', 'AT', 'ok'],
-    ['otro', 'OD', 'revisar'],
+    ['1', 'OD', 'revisar'],
   ])('anuncio %s, catastro %s → %s', (p, c, esperado) => {
     expect(nivel(anuncio({ planta: p }), 'planta', inmueble({ planta: c }))).toBe(esperado)
   })
+})
+
+it('planta del anuncio desconocida → no se evalúa', () => {
+  expect(nivel(anuncio({ planta: 'xx' }), 'planta', inmueble({ planta: 'OD' }))).toBeUndefined()
 })
 
 describe('anexo', () => {
