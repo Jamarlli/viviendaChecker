@@ -23,9 +23,13 @@ Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' |
 | Uso residencial | 0,10 |
 
 Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre los pesos disponibles).
+- Límites inclusivos (±15 % y ±2 años incluidos).
+- Si hay construida y útil, se usa la construida.
+- El uso se evalúa siempre: todo anuncio ofrece vivienda.
+- Planta: se normalizan ambos lados (`BJ`/`00`/`0` → `bajo`, `01` → `1`).
 
 ## Confianza
-- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º.
+- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º (sin 2.º, ventaja total). Con coords aproximadas, como máximo `media`.
 - `media`: 1.º ≥ 0,6.
 - `baja`: resto.
 - `ninguna`: sin candidatos.
