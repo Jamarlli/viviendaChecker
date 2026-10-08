@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { Anuncio, Candidato, Inmueble } from '../tipos'
 import { calcularConfianza, ordenarCandidatos, puntuar } from './puntuacion'
 
@@ -81,6 +81,13 @@ describe('puntuar', () => {
     expect(puntuar(a, inmueble({ planta: 'BJ', uso: 'x' }))).toBeCloseTo(0.75)
     expect(puntuar(a, inmueble({ planta: '00', uso: 'x' }))).toBeCloseTo(0.75)
     expect(puntuar(a, inmueble({ planta: '01', uso: 'x' }))).toBe(0)
+    expect(puntuar(anuncio({ planta: 'ático' }), inmueble({ planta: 'AT', uso: 'x' }))).toBeCloseTo(
+      0.75,
+    )
+  })
+
+  it("planta 'otro' en el anuncio no puntúa ni penaliza", () => {
+    expect(puntuar(anuncio({ planta: 'XX' }), inmueble({ planta: 'OD' }))).toBeCloseTo(1)
   })
 
   it('señales ausentes no puntúan ni penalizan: normaliza sobre las disponibles', () => {

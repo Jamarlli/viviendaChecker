@@ -26,7 +26,7 @@ Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre
 - Límites inclusivos (±15 % y ±2 años incluidos).
 - Si hay construida y útil, se usa la construida.
 - El uso se evalúa siempre: todo anuncio ofrece vivienda.
-- Planta: se normalizan ambos lados (`BJ`/`00`/`0` → `bajo`, `01` → `1`).
+- Planta: ambos lados se normalizan con `core/planta.ts` a las formas canónicas de la spec 01. Catastro: `BJ`/`00`/`0` → `bajo`, `EN` → `entreplanta`, `AT` → `atico`, `SS`/`ST`/negativas → `sotano`, `01` → `1`, `OD` y desconocidas → `otro`. Si el anuncio queda en `otro`, la señal no se evalúa.
 
 ## Confianza
 - `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º (sin 2.º, ventaja total). Con coords aproximadas, como máximo `media`.
