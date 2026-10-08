@@ -1,3 +1,4 @@
+import { normalizarPlanta } from './planta'
 import type { Anuncio, Confianza, Discrepancia, Inmueble, TipoInmueble } from './tipos'
 
 const VIVIENDA: TipoInmueble[] = ['piso', 'atico', 'duplex', 'estudio', 'casa']
@@ -36,12 +37,22 @@ function superficie(a: Anuncio, i: Inmueble): Discrepancia | undefined {
         explicacion:
           'El Catastro incluye zonas comunes; diferencias de hasta un 10 % son normales.',
       }
+    if (dif * 5 <= i.m2)
+      return {
+        campo: 'superficie',
+        nivel: 'revisar',
+        anuncio,
+        catastro,
+        explicacion:
+          'La superficie difiere del Catastro más de lo habitual. Pide que te la aclaren.',
+      }
     return {
       campo: 'superficie',
-      nivel: dif * 5 <= i.m2 ? 'revisar' : 'aviso',
+      nivel: 'aviso',
       anuncio,
       catastro,
-      explicacion: 'La superficie difiere del Catastro más de lo habitual. Pide que te la aclaren.',
+      explicacion:
+        'La superficie difiere del Catastro más de un 20 %. Puede haber ampliaciones sin registrar o un error en el anuncio: pide la nota simple.',
     }
   }
   if (a.m2Utiles) {
@@ -94,7 +105,8 @@ function uso(a: Anuncio, i: Inmueble): Discrepancia | undefined {
 
 function planta(a: Anuncio, i: Inmueble): Discrepancia | undefined {
   if (!a.planta || !i.planta) return
-  const ok = normalizarPlanta(a.planta) === normalizarPlanta(i.planta)
+  const p = normalizarPlanta(a.planta)
+  const ok = p !== 'otro' && p === normalizarPlanta(i.planta)
   return {
     campo: 'planta',
     nivel: ok ? 'ok' : 'revisar',
@@ -106,24 +118,18 @@ function planta(a: Anuncio, i: Inmueble): Discrepancia | undefined {
   }
 }
 
-// Mínima; se unificará con la de emparejamiento (#8).
-function normalizarPlanta(p: string): string {
-  const s = p.trim().toLowerCase()
-  if (['bj', 'bajo', 'baja'].includes(s)) return '0'
-  return /^-?\d+$/.test(s) ? String(Number(s)) : s
-}
-
 function anexo(a: Anuncio, i: Inmueble, parcela: Inmueble[]): Discrepancia | undefined {
   if (!a.mencionaTrastero && !a.mencionaGaraje) return
   const hay = parcela.some((p) => p.rc !== i.rc && /almac|estacion|aparca/i.test(p.uso))
   if (!hay) return
-  const que = [a.mencionaTrastero && 'trastero', a.mencionaGaraje && 'garaje']
+  const que = [a.mencionaTrastero && 'el trastero', a.mencionaGaraje && 'el garaje']
     .filter(Boolean)
     .join(' y ')
+  const verbo = a.mencionaTrastero && a.mencionaGaraje ? 'entran' : 'entra'
   return {
     campo: 'anexo',
     nivel: 'revisar',
-    anuncio: que,
-    explicacion: `En el edificio hay trasteros o garajes con referencia catastral propia. Comprueba que el ${que} entra en la venta.`,
+    anuncio: que.replace(/el /g, ''),
+    explicacion: `En el edificio hay trasteros o garajes con referencia catastral propia. Comprueba que ${que} ${verbo} en la venta.`,
   }
 }

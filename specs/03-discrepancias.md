@@ -20,6 +20,7 @@ Discrepancia { campo: 'superficie' | 'anio' | 'uso' | 'planta' | 'anexo'; nivel:
 Notas:
 - Superficie: se usa la construida si existe; si no, la útil. Porcentaje sobre la del Catastro.
 - Uso: sin tipo en el anuncio, o no residencial y anuncio que no es de vivienda → no se evalúa.
+- Planta: se comparan normalizadas (`core/planta.ts`); `otro` nunca coincide.
 - Anexo: inmuebles de la parcela, distintos del elegido, con uso almacén/estacionamiento.
 
 ## Criterios

@@ -48,6 +48,13 @@ describe('superficie construida', () => {
     expect(d?.explicacion).toBeTruthy()
   })
 
+  it('aviso con explicación propia', () => {
+    const revisar = de(anuncio({ m2Construidos: 115 }))[0]?.explicacion
+    const aviso = de(anuncio({ m2Construidos: 130 }))[0]?.explicacion
+    expect(aviso).toBeTruthy()
+    expect(aviso).not.toBe(revisar)
+  })
+
   it('prevalece sobre la útil', () => {
     expect(nivel(anuncio({ m2Construidos: 100, m2Utiles: 50 }), 'superficie')).toBe('ok')
   })
@@ -95,6 +102,8 @@ describe('planta', () => {
     ['bajo', '00', 'ok'],
     ['bajo', 'BJ', 'ok'],
     ['2', '01', 'revisar'],
+    ['atico', 'AT', 'ok'],
+    ['otro', 'OD', 'revisar'],
   ])('anuncio %s, catastro %s → %s', (p, c, esperado) => {
     expect(nivel(anuncio({ planta: p }), 'planta', inmueble({ planta: c }))).toBe(esperado)
   })
@@ -111,6 +120,11 @@ describe('anexo', () => {
 
   it('menciona garaje y la parcela tiene estacionamientos → revisar', () => {
     expect(nivel(anuncio({ mencionaGaraje: true }), 'anexo', inmueble(), [almacen])).toBe('revisar')
+  })
+
+  it('ambos anexos → frase en plural', () => {
+    const d = de(anuncio({ mencionaTrastero: true, mencionaGaraje: true }), inmueble(), [almacen])
+    expect(d[0]?.explicacion).toContain('el trastero y el garaje entran en la venta')
   })
 
   it('sin mención → no se evalúa', () => {
@@ -137,6 +151,14 @@ describe('confianza', () => {
     const r = discrepancias(a, inmueble(), 'baja', [])
     expect(r).toHaveLength(2)
     expect(r.every((d) => d.pocoFiable)).toBe(true)
+  })
+
+  it('ninguna → poco fiable', () => {
+    expect(discrepancias(a, inmueble(), 'ninguna', []).every((d) => d.pocoFiable)).toBe(true)
+  })
+
+  it('media → fiable', () => {
+    expect(discrepancias(a, inmueble(), 'media', []).some((d) => d.pocoFiable)).toBe(false)
   })
 
   it('alta → fiable', () => {
