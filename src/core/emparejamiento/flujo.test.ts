@@ -218,7 +218,10 @@ describe('emparejar · coords', () => {
       referencia: (pc) => ok([inmueble(pc, { m2: 100, planta: '01', anio: 2000 })]),
     })
     const r = await emparejar(soloCoords, deps(c.catastro))
-    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['CERCA', 'LEJOS'])
+    expect(r.ok && r.valor.candidatos.map((x) => [x.inmueble.rc, x.distancia])).toEqual([
+      ['CERCA', 3],
+      ['LEJOS', 200],
+    ])
   })
 
   it('aproximadas → nunca alta', async () => {

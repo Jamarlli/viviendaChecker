@@ -37,6 +37,8 @@ export interface Candidato {
   inmueble: Inmueble
   /** 0-1 */
   puntuacion: number
+  /** Metros del punto del anuncio a la parcela (solo por coords). */
+  distancia?: number
 }
 
 export type Confianza = 'alta' | 'media' | 'baja' | 'ninguna'
