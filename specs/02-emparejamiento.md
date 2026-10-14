@@ -65,7 +65,3 @@ Formato real (fixtures en `fixtures/catastro/`):
 - `parcelasEnRadio(coords, radioM, provincia?)`: WFS INSPIRE `CadastralParcel`, `GetFeature` por BBOX (cuadrado de lado 2·radio, EPSG:4326, orden lat,lon). GML (ISO-8859-1, solo se leen campos ASCII): `nationalCadastralReference` (14 car.) y `referencePoint` (`gml:pos` lat lon). `distancia`: metros del punto a `referencePoint`; se quedan las de `distancia ≤ radioM`, ordenadas; `direccion` vacía. Se parsea con expresiones regulares: el service worker no tiene `DOMParser`. Sin parcelas → `ExceptionReport` "No records founded" → `sinResultados`; otra excepción → `api`. Sin respuesta en 15 s → `red` ("Tiempo agotado"). Todos los métodos aceptan un `AbortSignal` opcional.
 - Coste medido (Madrid centro, 250 m): ~420 parcelas, ~0,9 MB, 9–11 s. Más de ~1 km² tarda > 1 min: no ampliar el radio sin medir. El WFS de edificios (`wfsBU`) trae superficie total y nº de viviendas del edificio (no del inmueble) y tarda ~45 s y 2 MB: no se usa.
 - Sin `ant` (solares) → `anio: 0`. `pt`/`pu` se copian tal cual (`00`, `-1`, `OD`…).
-
-## Dudas
-- Pesos y umbrales ajustados con 24 anuncios reales (#33, `docs/medicion-emparejamiento.md`); revisar con más.
-- `sfc` del Catastro incluye zonas comunes; validar con fixtures.
