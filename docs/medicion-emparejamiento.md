@@ -1,37 +1,37 @@
 # Medición del emparejamiento (#26)
 
-Generado con `npm run medir` (`scripts/medir-emparejamiento.mjs`) el 2026-10-14 contra la API real del Catastro: 24 anuncios de `fixtures/idealista/esperado`, sin selección manual, pesos y umbrales de `src/core/emparejamiento/constantes.ts`. 476 peticiones nuevas (resto de caché), en serie, ≥ 1.1 s entre ellas.
+Generado con `npm run medir` (`scripts/medir-emparejamiento.mjs`) el 2026-10-14 contra la API real del Catastro: 24 anuncios de `fixtures/idealista/esperado`, sin selección manual, pesos y umbrales de `src/core/emparejamiento/constantes.ts`. 419 peticiones nuevas (resto de caché), en serie, ≥ 1.1 s entre ellas.
 
 ## Emparejamiento por anuncio
 
-Confianza: alta 2 · media 12 · baja 9 · ninguna 1 · error 0.
+Confianza: alta 2 · media 18 · baja 4 · ninguna 0 · error 0.
 
 | id | tipo | aprox. | origen | nº cand. | 1.º | 2.º | ventaja | confianza | uso 1.º | m² 1.º (anuncio) | planta 1.º (anuncio) | año 1.º (anuncio) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 104570830 | atico | sí | coords | 136 | 0.65 | 0.65 | 0.00 | media | Residencial | 90 (102) | 00 (7) | 2000 (—) |
+| 104570830 | atico | sí | coords | 49 | 0.65 | 0.65 | 0.00 | media | Residencial | 98 (102) | 02 (7) | 1936 (—) |
 | 104685725 | atico | no | direccion | 186 | 0.47 | 0.47 | 0.00 | baja | Residencial | 249 (318) | 07 (7) | 2025 (—) |
 | 105996116 | atico | no | direccion | 11 | 1.00 | 0.18 | 0.82 | alta | Residencial | 353 (312) | 02 (—) | 2025 (—) |
-| 108505570 | atico | sí | coords | 88 | 0.55 | 0.55 | 0.00 | baja | Residencial | 166 (158) | 05 (8) | 1949 (1991) |
-| 109723839 | estudio | sí | coords | 24 | 0.55 | 0.45 | 0.10 | baja | Residencial | 70 (65) | 05 (2) | 1900 (1917) |
+| 108505570 | atico | sí | coords | 83 | 0.55 | 0.55 | 0.00 | baja | Residencial | 166 (158) | 05 (8) | 1949 (1991) |
+| 109723839 | estudio | sí | coords | 25 | 0.85 | 0.85 | 0.00 | media | Residencial | 59 (65) | 02 (2) | 1995 (1917) |
 | 109776242 | casa | no | direccion | 4 | 1.00 | 1.00 | 0.00 | media | Residencial | 234 (208) | OD (—) | 2006 (2006) |
-| 110258143 | piso | sí | coords | 154 | 0.85 | 0.85 | 0.00 | media | Residencial | 195 (193) | 07 (7) | 1939 (1964) |
-| 110491789 | piso | sí | coords | 178 | 1.00 | 0.70 | 0.30 | media | Residencial | 197 (192) | 03 (3) | 1900 (1900) |
-| 111109550 | piso | sí | coords | 92 | 0.55 | 0.40 | 0.15 | baja | Residencial | 176 (194) | 02 (5) | 1935 (1985) |
-| 111181225 | piso | sí | coords | 333 | 0.85 | 0.85 | 0.00 | media | Residencial | 120 (113) | 04 (4) | 1972 (1957) |
+| 110258143 | piso | sí | coords | 98 | 0.85 | 0.85 | 0.00 | media | Residencial | 195 (193) | 07 (7) | 1939 (1964) |
+| 110491789 | piso | sí | coords | 28 | 1.00 | 1.00 | 0.00 | media | Residencial | 197 (192) | 03 (3) | 1900 (1900) |
+| 111109550 | piso | sí | coords | 33 | 0.85 | 0.85 | 0.00 | media | Residencial | 188 (194) | 05 (5) | 1939 (1985) |
+| 111181225 | piso | sí | coords | 145 | 0.85 | 0.85 | 0.00 | media | Residencial | 120 (113) | 04 (4) | 1972 (1957) |
 | 111337066 | piso | no | direccion | 8 | 1.00 | 0.25 | 0.75 | alta | Residencial | 261 (230) | 03 (3) | 1900 (1900) |
-| 111364311 | piso | sí | coords | 101 | 0.85 | 0.70 | 0.15 | media | Residencial | 75 (80) | 03 (3) | 1905 (1900) |
-| 111474399 | casa | sí | coords | 0 | — | — | — | ninguna | — | — | — | — |
-| 111823157 | piso | sí | coords | 201 | 0.85 | 0.85 | 0.00 | media | Residencial | 82 (87) | 02 (2) | 1940 (1935) |
-| 111879794 | casa | sí | coords | 5 | 0.14 | 0.14 | 0.00 | baja | Residencial | 633 (510) | OD (—) | 2000 (2026) |
-| 111955729 | piso | sí | coords | 252 | 1.00 | 0.65 | 0.35 | media | Residencial | 107 (114) | 05 (5) | 1966 (—) |
-| 112121660 | piso | sí | coords | 101 | 0.55 | 0.55 | 0.00 | baja | Residencial | 85 (80) | 01 (7) | 1985 (1972) |
-| 112503762 | duplex | sí | coords | 226 | 1.00 | 1.00 | 0.00 | media | Residencial | 328 (370) | 03 (3) | 2001 (2001) |
-| 112517360 | piso | sí | coords | 212 | 0.53 | 0.47 | 0.06 | baja | Comercial | 94 (98) | 00 (1) | 1977 (—) |
-| 112551961 | piso | sí | coords | 257 | 1.00 | 1.00 | 0.00 | media | Residencial | 144 (154) | 00 (bajo) | 2000 (—) |
-| 112581200 | piso | sí | coords | 207 | 0.85 | 0.85 | 0.00 | media | Residencial | 172 (181) | 06 (6) | 1984 (1966) |
-| 112637748 | duplex | sí | coords | 290 | 0.85 | 0.85 | 0.00 | media | Residencial | 182 (165) | 06 (6) | 2019 (2003) |
-| 112803255 | casa | sí | coords | 1 | 0.00 | — | 0.00 | baja | Obras de urbanización y jardineria, suelos sin edificar | 0 (215) | UE (—) | 0 (2015) |
-| 38041203 | casa | sí | coords | 2 | 0.00 | 0.00 | 0.00 | baja | Deportivo | 6344 (775) | OD (—) | 1995 (—) |
+| 111364311 | piso | sí | coords | 101 | 1.00 | 1.00 | 0.00 | media | Residencial | 88 (80) | 03 (3) | 1900 (1900) |
+| 111474399 | casa | sí | coords | 2 | 0.79 | 0.79 | 0.00 | media | Residencial | 236 (262) | OD (—) | 1940 (2012) |
+| 111823157 | piso | sí | coords | 63 | 0.85 | 0.85 | 0.00 | media | Residencial | 82 (87) | 02 (2) | 1940 (1935) |
+| 111879794 | casa | sí | coords | 7 | 0.79 | 0.79 | 0.00 | media | Residencial | 441 (510) | 00 (—) | 2000 (2026) |
+| 111955729 | piso | sí | coords | 137 | 1.00 | 1.00 | 0.00 | media | Residencial | 107 (114) | 05 (5) | 1966 (—) |
+| 112121660 | piso | sí | coords | 69 | 0.55 | 0.55 | 0.00 | baja | Residencial | 80 (80) | 01 (7) | 1965 (1972) |
+| 112503762 | duplex | sí | coords | 25 | 1.00 | 1.00 | 0.00 | media | Residencial | 328 (370) | 03 (3) | 2001 (2001) |
+| 112517360 | piso | sí | coords | 42 | 1.00 | 1.00 | 0.00 | media | Residencial | 86 (98) | 01 (1) | 1938 (—) |
+| 112551961 | piso | sí | coords | 1121 | 1.00 | 1.00 | 0.00 | media | Residencial | 144 (154) | 00 (bajo) | 2000 (—) |
+| 112581200 | piso | sí | coords | 30 | 0.85 | 0.85 | 0.00 | media | Residencial | 172 (181) | 06 (6) | 1984 (1966) |
+| 112637748 | duplex | sí | coords | 108 | 0.85 | 0.85 | 0.00 | media | Residencial | 182 (165) | 06 (6) | 2019 (2003) |
+| 112803255 | casa | sí | coords | 39 | 0.79 | 0.79 | 0.00 | media | Residencial | 190 (215) | 00 (—) | 1987 (2015) |
+| 38041203 | casa | sí | coords | 27 | 0.18 | 0.18 | 0.00 | baja | Residencial | 284 (775) | OD (—) | 1998 (—) |
 
 Ventaja = 1.º − 2.º (sin 2.º, 1.º). Entre paréntesis, el dato del anuncio.
 
@@ -100,3 +100,18 @@ No hay verdad de terreno: no se ha verificado en la Sede del Catastro y el anunc
    - `media` exige además ventaja ≥ 0,1 o ≤ 3 empatados en cabeza; si no, `baja`.
    - Tolerancia de superficie: mantener ±15 % (cubre al 1.º en 19 de 23); en obra nueva no hay base para ampliarla.
    - Vías: probar también la variante castellana ("Sant Vicent Màrtir" no existe en el Catastro de València).
+
+### Tras #30 (WFS a 250 m, 25 parcelas, filtro ±15 %)
+
+Las tablas de arriba ya son con #30; lo anterior de este análisis describe #26.
+
+| | #26 (RCCOOR ~25 m, 10 parcelas) | #30 (WFS 250 m, 25 parcelas) |
+|---|---|---|
+| Confianza | alta 2 · media 12 · baja 9 · ninguna 1 | alta 2 · media 18 · baja 4 · ninguna 0 |
+| Empate 1.º = 2.º | 14 de 23 | 22 de 24 |
+| Coords con planta: 1.º en otra planta | 6 de 16 | 3 de 16 |
+| Peticiones por anuncio con coords | 1 + ≤ 10 `DNPRC` | 1 WFS (~10 s, ~0,9 MB en Madrid centro) + ≤ 25 `DNPRC` |
+
+- El radio encuentra la planta del anuncio en 3 casos más y da candidatos a la casa que antes no tenía ninguno (111474399); 112517360 pasa de un local a una vivienda de la 1.ª.
+- Los empates suben: a 250 m hay muchas viviendas con la misma planta y superficie. La `media` sigue sin distinguir; hacen falta las propuestas de #26 (desempate por distancia ya aplicado vía orden estable, `media` con ventaja o pocos empatados).
+- Las 25 parcelas más cercanas cubren en zona densa ~60–80 m, no los 250 m: el radio solo se aprovecha entero en zonas poco densas.
