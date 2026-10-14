@@ -1,4 +1,17 @@
+import type {
+  ClienteCatastro,
+  Localizacion,
+  Parcela,
+  Resultado,
+} from '../../core/emparejamiento/puertos'
 import type { Inmueble } from '../../core/tipos'
+
+export type {
+  ErrorCatastro,
+  Localizacion,
+  Parcela,
+  Resultado,
+} from '../../core/emparejamiento/puertos'
 
 const BASE = 'https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/'
 const CALLEJERO = `${BASE}COVCCallejero.svc/json/`
@@ -17,30 +30,6 @@ const FORALES = new Set([
   'NAVARRA',
   'NAFARROA',
 ])
-
-export type ErrorCatastro =
-  | { tipo: 'noSoportado' }
-  | { tipo: 'sinResultados'; mensaje: string }
-  | { tipo: 'api'; codigo?: string; mensaje: string }
-  | { tipo: 'red'; mensaje: string }
-
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; error: ErrorCatastro }
-
-export interface Parcela {
-  /** Referencia de parcela (14 car.). */
-  pc: string
-  direccion: string
-  /** Metros a las coordenadas consultadas. */
-  distancia: number
-}
-
-export interface Localizacion {
-  provincia: string
-  municipio: string
-  sigla: string
-  calle: string
-  numero: string
-}
 
 export function esProvinciaForal(provincia: string): boolean {
   const norm = provincia.normalize('NFD').replace(/\p{M}/gu, '').toUpperCase()
@@ -134,7 +123,7 @@ async function consultar<T>(
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export function crearClienteCatastro(fetchFn: typeof fetch) {
+export function crearClienteCatastro(fetchFn: typeof fetch): ClienteCatastro {
   return {
     buscarPorDireccion(l: Localizacion): Promise<Resultado<Inmueble[]>> {
       if (esProvinciaForal(l.provincia)) return Promise.resolve(noSoportado)

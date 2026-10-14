@@ -10,9 +10,14 @@ Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' |
 ```
 
 ## Flujo
-1. Parcelas: con vía + número → `DNPLOC`; si no, con coords → `RCCOOR_Distancia`; si no → `ninguna`.
-2. Inmuebles de cada parcela → `DNPRC`.
+0. Selección manual guardada para el id del anuncio → `DNPRC` de esa RC; `origen: 'manual'`, confianza `alta`.
+1. Parcelas: con vía + número (+ provincia y municipio) → `DNPLOC`; si no (o sin resultados), con coords → `RCCOOR_Distancia`; si no → `ninguna`.
+2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.)
 3. Puntuar cada inmueble y ordenar.
+
+- `emparejar(anuncio, { catastro, almacen })` devuelve `Resultado<Emparejamiento>`; nunca lanza. `sinResultados` → `ninguna`; `noSoportado`, `red` y `api` → error.
+- `Sigla` y `Calle` salen de la vía del anuncio: "Calle de Alcalá" → `CL` `ALCALA`. Se quita el artículo tras el tipo (de, del, de la…); sin tipo reconocible → `CL`.
+- Selección manual: RC de 20 car. (espacios y minúsculas se normalizan), guardada en local por id de anuncio.
 
 ## Puntuación
 | Señal | Peso |
