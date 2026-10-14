@@ -40,7 +40,8 @@ export interface Candidato {
 }
 
 export type Confianza = 'alta' | 'media' | 'baja' | 'ninguna'
-export type OrigenEmparejamiento = 'direccion' | 'coords' | 'manual'
+/** 'ninguno': sin dirección completa ni coords, no se consultó. */
+export type OrigenEmparejamiento = 'direccion' | 'coords' | 'manual' | 'ninguno'
 
 export interface Emparejamiento {
   candidatos: Candidato[]
