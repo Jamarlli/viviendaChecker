@@ -1,0 +1,306 @@
+{
+  "descripcion": "Tipo general de ITP (vivienda de segunda mano) y AJD (obra nueva) por comunidad autónoma, 2026. Tipos en tanto por uno. itp.modo: 'marginal' = cada porción del valor tributa a su tipo (o tipo medio equivalente); 'total' = todo el valor tributa al tipo del tramo en que cae. Un tramo aplica al valor que excede de 'desde'.",
+  "fuenteGeneral": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+  "comunidades": [
+    {
+      "nombre": "Andalucía",
+      "provincias": [
+        { "nombre": "Almería", "variantes": [] },
+        { "nombre": "Cádiz", "variantes": [] },
+        { "nombre": "Córdoba", "variantes": [] },
+        { "nombre": "Granada", "variantes": [] },
+        { "nombre": "Huelva", "variantes": [] },
+        { "nombre": "Jaén", "variantes": [] },
+        { "nombre": "Málaga", "variantes": [] },
+        { "nombre": "Sevilla", "variantes": [] }
+      ],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.07 }] },
+      "ajd": 0.012,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Aragón",
+      "provincias": [
+        { "nombre": "Huesca", "variantes": ["Uesca"] },
+        { "nombre": "Teruel", "variantes": [] },
+        { "nombre": "Zaragoza", "variantes": [] }
+      ],
+      "itp": {
+        "modo": "marginal",
+        "tramos": [
+          { "desde": 0, "tipo": 0.08 },
+          { "desde": 400000, "tipo": 0.085 },
+          { "desde": 450000, "tipo": 0.09 },
+          { "desde": 500000, "tipo": 0.095 },
+          { "desde": 750000, "tipo": 0.1 }
+        ]
+      },
+      "ajd": 0.015,
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOA-d-2005-90006",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Principado de Asturias",
+      "provincias": [{ "nombre": "Asturias", "variantes": ["Principado de Asturias", "Oviedo"] }],
+      "itp": {
+        "modo": "total",
+        "tramos": [
+          { "desde": 0, "tipo": 0.08 },
+          { "desde": 300000, "tipo": 0.09 },
+          { "desde": 500000, "tipo": 0.1 }
+        ]
+      },
+      "ajd": 0.012,
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-945",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Illes Balears",
+      "provincias": [
+        {
+          "nombre": "Illes Balears",
+          "variantes": ["Balears", "Balears (Illes)", "Baleares", "Islas Baleares"]
+        }
+      ],
+      "itp": {
+        "modo": "marginal",
+        "tramos": [
+          { "desde": 0, "tipo": 0.08 },
+          { "desde": 400000, "tipo": 0.09 },
+          { "desde": 600000, "tipo": 0.1 },
+          { "desde": 1000000, "tipo": 0.12 },
+          { "desde": 2000000, "tipo": 0.13 }
+        ]
+      },
+      "ajd": 0.015,
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2014-6925",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Canarias",
+      "provincias": [
+        { "nombre": "Las Palmas", "variantes": ["Palmas (Las)", "Palmas, Las"] },
+        { "nombre": "Santa Cruz de Tenerife", "variantes": ["Tenerife"] }
+      ],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.065 }] },
+      "ajd": 0.0075,
+      "nota": "Obra nueva: IGIC en lugar de IVA.",
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Cantabria",
+      "provincias": [{ "nombre": "Cantabria", "variantes": ["Santander"] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.09 }] },
+      "ajd": 0.015,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Castilla y León",
+      "provincias": [
+        { "nombre": "Ávila", "variantes": [] },
+        { "nombre": "Burgos", "variantes": [] },
+        { "nombre": "León", "variantes": [] },
+        { "nombre": "Palencia", "variantes": [] },
+        { "nombre": "Salamanca", "variantes": [] },
+        { "nombre": "Segovia", "variantes": [] },
+        { "nombre": "Soria", "variantes": [] },
+        { "nombre": "Valladolid", "variantes": [] },
+        { "nombre": "Zamora", "variantes": [] }
+      ],
+      "itp": {
+        "modo": "marginal",
+        "tramos": [
+          { "desde": 0, "tipo": 0.08 },
+          { "desde": 250000, "tipo": 0.1 }
+        ]
+      },
+      "ajd": 0.015,
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOCL-h-2013-90254",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Castilla-La Mancha",
+      "provincias": [
+        { "nombre": "Albacete", "variantes": [] },
+        { "nombre": "Ciudad Real", "variantes": [] },
+        { "nombre": "Cuenca", "variantes": [] },
+        { "nombre": "Guadalajara", "variantes": [] },
+        { "nombre": "Toledo", "variantes": [] }
+      ],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.09 }] },
+      "ajd": 0.015,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Cataluña",
+      "provincias": [
+        { "nombre": "Barcelona", "variantes": [] },
+        { "nombre": "Girona", "variantes": ["Gerona"] },
+        { "nombre": "Lleida", "variantes": ["Lérida"] },
+        { "nombre": "Tarragona", "variantes": [] }
+      ],
+      "itp": {
+        "modo": "marginal",
+        "tramos": [
+          { "desde": 0, "tipo": 0.1 },
+          { "desde": 600000, "tipo": 0.11 },
+          { "desde": 900000, "tipo": 0.12 },
+          { "desde": 1500000, "tipo": 0.13 }
+        ]
+      },
+      "ajd": 0.015,
+      "nota": "Gran tenedor o edificio entero: 20 %.",
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2024-6951",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Comunitat Valenciana",
+      "provincias": [
+        { "nombre": "Alicante", "variantes": ["Alacant", "Alicante/Alacant"] },
+        {
+          "nombre": "Castellón",
+          "variantes": ["Castelló", "Castellón/Castelló", "Castellón de la Plana"]
+        },
+        { "nombre": "Valencia", "variantes": ["Valencia/València"] }
+      ],
+      "itp": {
+        "modo": "total",
+        "tramos": [
+          { "desde": 0, "tipo": 0.09 },
+          { "desde": 1000000, "tipo": 0.11 }
+        ]
+      },
+      "ajd": 0.014,
+      "nota": "Tipos vigentes desde el 1-6-2026 (antes 10 % y 1,5 %).",
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-1998-8202",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Extremadura",
+      "provincias": [
+        { "nombre": "Badajoz", "variantes": [] },
+        { "nombre": "Cáceres", "variantes": [] }
+      ],
+      "itp": {
+        "modo": "marginal",
+        "tramos": [
+          { "desde": 0, "tipo": 0.08 },
+          { "desde": 360000, "tipo": 0.1 },
+          { "desde": 600000, "tipo": 0.11 }
+        ]
+      },
+      "ajd": 0.015,
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2018-8159",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Galicia",
+      "provincias": [
+        { "nombre": "A Coruña", "variantes": ["Coruña (A)", "Coruña, A", "La Coruña"] },
+        { "nombre": "Lugo", "variantes": [] },
+        { "nombre": "Ourense", "variantes": ["Orense"] },
+        { "nombre": "Pontevedra", "variantes": [] }
+      ],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.08 }] },
+      "ajd": 0.015,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Comunidad de Madrid",
+      "provincias": [{ "nombre": "Madrid", "variantes": [] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.06 }] },
+      "ajd": 0.0075,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Región de Murcia",
+      "provincias": [{ "nombre": "Murcia", "variantes": ["Región de Murcia"] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.0775 }] },
+      "ajd": 0.015,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Comunidad Foral de Navarra",
+      "provincias": [{ "nombre": "Navarra", "variantes": ["Nafarroa"] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.06 }] },
+      "ajd": 0.005,
+      "nota": "Régimen foral.",
+      "fuente": "https://www.lexnavarra.navarra.es/detalle.asp?r=28044",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "País Vasco",
+      "provincias": [
+        { "nombre": "Araba/Álava", "variantes": ["Álava", "Araba"] },
+        { "nombre": "Bizkaia", "variantes": ["Vizcaya"] },
+        { "nombre": "Gipuzkoa", "variantes": ["Guipúzcoa"] }
+      ],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.04 }] },
+      "ajd": 0,
+      "nota": "Régimen foral. AJD exento en la primera transmisión de viviendas (0,5 % en otros casos). Gipuzkoa: 4 % solo si el comprador no tiene más de 5 viviendas.",
+      "fuente": "https://www.bizkaia.eus/documents/880307/15187815/ca_1_2011.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "La Rioja",
+      "provincias": [{ "nombre": "La Rioja", "variantes": ["Rioja (La)", "Rioja, La", "Logroño"] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.07 }] },
+      "ajd": 0.01,
+      "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Ceuta",
+      "provincias": [{ "nombre": "Ceuta", "variantes": [] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.03 }] },
+      "ajd": 0.0025,
+      "nota": "Tipos estatales (6 % y 0,5 %) con bonificación del 50 % (art. 57 bis). Obra nueva: IPSI en lugar de IVA.",
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    },
+    {
+      "nombre": "Melilla",
+      "provincias": [{ "nombre": "Melilla", "variantes": [] }],
+      "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.03 }] },
+      "ajd": 0.0025,
+      "nota": "Tipos estatales (6 % y 0,5 %) con bonificación del 50 % (art. 57 bis). Obra nueva: IPSI en lugar de IVA.",
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359",
+      "fechaConsulta": "2026-10-08",
+      "verificado": true
+    }
+  ],
+  "gastos": {
+    "notaria": { "min": 600, "max": 1200 },
+    "registro": { "min": 400, "max": 800 },
+    "gestoria": { "min": 300, "max": 500 },
+    "nota": "Rangos orientativos. Notaría y registro siguen aranceles (RD 1426/1989 y RD 1427/1989) que dependen del valor y del documento.",
+    "fuente": "https://www.rastreator.com/hipotecas/guias/coste-tramites-para-comprar-casa",
+    "fechaConsulta": "2026-10-08",
+    "verificado": false
+  }
+}
