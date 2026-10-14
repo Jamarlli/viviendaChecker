@@ -11,7 +11,7 @@ interface Tramo {
 export interface ComunidadImpuestos {
   nombre: string
   provincias: { nombre: string; variantes: string[] }[]
-  itp: { modo: string; tramos: Tramo[] }
+  itp: { modo: 'marginal' | 'total'; tramos: Tramo[] }
   ajd: number
 }
 

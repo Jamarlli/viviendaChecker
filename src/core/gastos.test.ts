@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import tabla from '../../data/impuestos.json'
-import { calcularGastos, NOTA_GASTOS } from './gastos'
+import datos from '../../data/impuestos.json'
+import { calcularGastos, NOTA_GASTOS, type TablaImpuestos } from './gastos'
+
+const tabla = datos as TablaImpuestos
 import type { Anuncio, ConceptoGasto } from './tipos'
 
 const anuncio = (a: Partial<Anuncio> = {}): Anuncio => ({
@@ -82,7 +84,7 @@ describe('calcularGastos', () => {
       [900000, 93000],
       [1000000, 105000],
       [2000000, 230000],
-    ])('Cataluña %d → %d', (precio, itp) => {
+    ])('Cataluña %s → %s', (precio, itp) => {
       expect(partida(precio, 'Barcelona', 'itp')?.min).toBeCloseTo(itp, 2)
     })
 
@@ -91,7 +93,7 @@ describe('calcularGastos', () => {
       [250000, 20000],
       [250001, 20000.1],
       [300000, 25000],
-    ])('Castilla y León %d → %d', (precio, itp) => {
+    ])('Castilla y León %s → %s', (precio, itp) => {
       expect(partida(precio, 'Valladolid', 'itp')?.min).toBeCloseTo(itp, 2)
     })
   })
@@ -101,12 +103,17 @@ describe('calcularGastos', () => {
       // C. Valenciana: 9 % hasta 1M; por encima, todo al 11 %
       [1000000, 90000],
       [1000001, 110000.11],
-    ])('C. Valenciana %d → %d', (precio, itp) => {
+    ])('C. Valenciana %s → %s', (precio, itp) => {
       expect(partida(precio, 'Valencia', 'itp')?.min).toBeCloseTo(itp, 2)
     })
 
-    it('Asturias: todo el valor al tipo de su tramo', () => {
-      expect(partida(400000, 'Asturias', 'itp')?.min).toBeCloseTo(36000, 2)
+    it.each([
+      // Asturias: 8 % hasta 300k, 9 % hasta 500k, 10 % resto; todo al tipo del tramo
+      [300000, 24000],
+      [300001, 27000.09],
+      [400000, 36000],
+    ])('Asturias %s → %s', (precio, itp) => {
+      expect(partida(precio, 'Asturias', 'itp')?.min).toBeCloseTo(itp, 2)
     })
   })
 
