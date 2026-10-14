@@ -11,3 +11,8 @@ Thumbs.db
 
 # Anuncios reales sin sanear (scripts/sanear-fixture.mjs)
 fixtures/idealista/raw/
+
+# E2E
+e2e/capturas/
+test-results/
+playwright-report/

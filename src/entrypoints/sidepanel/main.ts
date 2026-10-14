@@ -144,7 +144,7 @@ function seccionInmueble(a: Analisis): HTMLElement {
           ...v.candidatos.map((c) =>
             h(
               'li',
-              {},
+              { 'data-rc': c.rc },
               h('span', {}, c.etiqueta, h('small', {}, ` · coincide ${c.coincidencia}`)),
               boton('Es este', () => void confirmar(c.rc, errorInmueble)),
             ),
@@ -229,7 +229,7 @@ function busqueda(a: Analisis, tab: number): Hijo {
         ...r.valor.map((c) =>
           h(
             'li',
-            {},
+            { 'data-rc': c.inmueble.rc },
             h('span', {}, etiquetaInmueble(c.inmueble)),
             boton('Es este', () => void confirmar(c.inmueble.rc, error)),
           ),
@@ -386,11 +386,20 @@ browser.runtime.onMessage.addListener((m: MensajeAlPanel) => {
   if (m.tipo === 'estado' && m.tab === tabActual) render(m.estado)
 })
 
-browser.tabs.onActivated.addListener(async ({ tabId, windowId }) => {
-  const actual = await browser.windows.getCurrent()
-  if (windowId === actual.id) void cambiarTab(tabId)
-})
+// Solo en builds de test (`wxt build --mode e2e`): panel en una pestaña normal, sin pestaña activa propia.
+const tabFijo =
+  import.meta.env.MODE === 'e2e'
+    ? Number(new URLSearchParams(location.search).get('tab')) || undefined
+    : undefined
 
-browser.tabs
-  .query({ active: true, currentWindow: true })
-  .then(([activa]) => cambiarTab(activa?.id), console.error)
+if (tabFijo !== undefined) void cambiarTab(tabFijo)
+else {
+  browser.tabs.onActivated.addListener(async ({ tabId, windowId }) => {
+    const actual = await browser.windows.getCurrent()
+    if (windowId === actual.id) void cambiarTab(tabId)
+  })
+
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(([activa]) => cambiarTab(activa?.id), console.error)
+}
