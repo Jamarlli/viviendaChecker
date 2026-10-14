@@ -5,7 +5,7 @@ const CALLEJERO = `${BASE}COVCCallejero.svc/json/`
 const COORDENADAS = `${BASE}COVCCoordenadas.svc/json/`
 
 // Códigos OVC que significan "no encontrado", no avería.
-const SIN_RESULTADOS = new Set(['5', '43'])
+const SIN_RESULTADOS = new Set(['5', '33', '43'])
 
 const FORALES = new Set([
   'ALAVA',
@@ -44,7 +44,7 @@ export interface Localizacion {
 
 export function esProvinciaForal(provincia: string): boolean {
   const norm = provincia.normalize('NFD').replace(/\p{M}/gu, '').toUpperCase()
-  return norm.split(/[/-]/).some((p) => FORALES.has(p.trim()))
+  return norm.split(/[^A-Z]+/).some((p) => FORALES.has(p))
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- JSON externo sin esquema */

@@ -11,7 +11,7 @@
     "postinstall": "wxt prepare",
     "test": "vitest run",
     "lint": "eslint . && prettier --check .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.core.json",
     "check": "npm run lint && npm run typecheck && npm test"
   },
   "devDependencies": {

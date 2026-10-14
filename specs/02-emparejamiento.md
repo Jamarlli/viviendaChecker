@@ -44,7 +44,7 @@ Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre
 - [ ] Provincias forales → "no soportado".
 
 ## Cliente Catastro (`adapters/catastro`)
-Devuelve `Resultado<T>` (`ok`/`error`), nunca lanza. Errores: `noSoportado` · `sinResultados` (cód. OVC 5 y 43, o lista vacía) · `api` (otro código o JSON inválido) · `red` (fallo de fetch o HTTP no 2xx).
+Devuelve `Resultado<T>` (`ok`/`error`), nunca lanza. Errores: `noSoportado` · `sinResultados` (cód. OVC 5, 33 y 43, o lista vacía) · `api` (otro código o JSON inválido) · `red` (fallo de fetch o HTTP no 2xx).
 
 Formato real (fixtures en `fixtures/catastro/`):
 - Varios inmuebles → `lrcdnp.rcdnp[]`; uno solo → objeto `bico.bi`. Se normalizan a lista.

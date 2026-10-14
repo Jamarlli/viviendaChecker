@@ -80,6 +80,15 @@ describe('buscarPorDireccion (DNPLOC)', () => {
     })
   })
 
+  it('vía inexistente → sinResultados', async () => {
+    const f = fetchFalso(fixture('dnploc-via-inexistente'))
+    const r = await crearClienteCatastro(f.fn).buscarPorDireccion(alcala100)
+    expect(r).toEqual({
+      ok: false,
+      error: { tipo: 'sinResultados', mensaje: 'LA VÍA NO EXISTE' },
+    })
+  })
+
   it('provincia foral → noSoportado sin llamar a la red', async () => {
     const f = fetchFalso('')
     const r = await crearClienteCatastro(f.fn).buscarPorDireccion({
@@ -193,13 +202,13 @@ describe('errores', () => {
   })
 
   it('otro error de la API → api con código', async () => {
-    const r = await consultar(fetchFalso(fixture('dnploc-numero-invalido')).fn)
+    const r = await consultar(fetchFalso(fixture('dnprc-rc-invalida')).fn)
     expect(r).toEqual({
       ok: false,
       error: {
         tipo: 'api',
-        codigo: '42',
-        mensaje: 'EL NÚMERO DEBE SER UNA SECUENCIA DE HASTA 4 DÍGITOS.',
+        codigo: '3',
+        mensaje: 'LA REFERENCIA CATASTRAL DEBE TENER 14,18 o 20 POSICIONES',
       },
     })
   })
@@ -216,6 +225,7 @@ describe('esProvinciaForal', () => {
     'Guipúzcoa',
     'Navarra',
     'Nafarroa',
+    'Comunidad Foral de Navarra',
   ])('%s → sí', (p) => expect(esProvinciaForal(p)).toBe(true))
 
   it.each(['Madrid', 'Cantabria', 'La Rioja', ''])('%s → no', (p) =>
