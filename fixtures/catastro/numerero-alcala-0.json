@@ -1,0 +1,1 @@
+{"consulta_numereroResult":{"control":{"cunum":4,"cuerr":1},"nump":[{"pc":{"pc1":"0545206","pc2":"VK4704F"},"num":{"pnp":"1"}},{"pc":{"pc1":"0644301","pc2":"VK4704D"},"num":{"pnp":"2"}},{"pc":{"pc1":"0645401","pc2":"VK4704D"},"num":{"pnp":"3","plp":" "}},{"pc":{"pc1":"0644302","pc2":"VK4704D"},"num":{"pnp":"4"}}],"lerr":{"err":[{"cod":"43","des":"EL NUMERO NO EXISTE."}]}}}
