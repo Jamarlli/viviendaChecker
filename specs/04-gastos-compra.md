@@ -14,6 +14,7 @@ Gastos { comunidad: string; desglose: PartidaGasto[]; total: Rango }
 - Obra nueva: IVA 10 % + AJD de la comunidad autónoma.
 - Notaría, registro y gestoría: rango fijo estimado.
 - Tabla de tipos en `data/impuestos.json`, con fecha y fuente por comunidad.
+- ITP por tramos (`itp.modo`): `marginal` (cada porción a su tipo) o `total` (todo el valor al tipo de su tramo).
 
 ## Criterios
 - [ ] Provincia → comunidad autónoma (incluidas Ceuta y Melilla).
@@ -25,4 +26,4 @@ Gastos { comunidad: string; desglose: PartidaGasto[]; total: Rango }
 Tipos reducidos · gastos de hipoteca · valor de referencia.
 
 ## Dudas
-- Recopilar tipos vigentes 2026 por comunidad (issue propia).
+- Obra nueva en Canarias (IGIC) y Ceuta/Melilla (IPSI) no lleva IVA: ¿se modela o se avisa con nota?
