@@ -12,7 +12,7 @@ Anuncio {
   direccion?: { via?: string; numero?: string }
   municipio?: string; provincia?: string
   coords?: { lat: number; lon: number; aproximada: boolean }
-  planta?: string            // normalizada: 'bajo' | '1' | '2'…
+  planta?: string            // normalizada (core/planta.ts): 'bajo' | 'entreplanta' | 'atico' | 'sotano' | '1' | '2'… | 'otro'; semisótano → 'sotano'
   m2Construidos?: number; m2Utiles?: number
   anio?: number
   descripcion: string
