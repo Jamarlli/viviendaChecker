@@ -8,3 +8,6 @@ export const MARGEN_ANIO = 2
 export const UMBRAL_ALTA = 0.8
 export const VENTAJA_ALTA = 0.2
 export const UMBRAL_MEDIA = 0.6
+
+// Parcelas más cercanas que se consultan por coords.
+export const MAX_PARCELAS = 10

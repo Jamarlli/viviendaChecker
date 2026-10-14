@@ -1,32 +1,58 @@
-import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { crearClienteCatastro } from '../../adapters/catastro/cliente'
-import type { Anuncio } from '../tipos'
+import type { Anuncio, Inmueble } from '../tipos'
 import { emparejar, guardarSeleccion } from './flujo'
-import type { Almacen, SeleccionManual } from './puertos'
+import type {
+  Almacen,
+  ClienteCatastro,
+  ErrorCatastro,
+  Localizacion,
+  Parcela,
+  Resultado,
+  SeleccionManual,
+} from './puertos'
 
-const fixture = (nombre: string) => readFileSync(`fixtures/catastro/${nombre}.json`, 'utf8')
+const ok = <T>(valor: T): Resultado<T> => ({ ok: true, valor })
+const err = (error: ErrorCatastro): Resultado<never> => ({ ok: false, error })
+const vacio = err({ tipo: 'sinResultados', mensaje: '' })
 
-type Rutas = { dnploc?: string; rccoor?: string; dnprc?: (refCat: string) => string }
+const inmueble = (rc: string, datos: Partial<Inmueble> = {}): Inmueble => ({
+  rc,
+  uso: 'Residencial',
+  m2: 80,
+  anio: 1990,
+  planta: '02',
+  puerta: 'A',
+  direccion: '',
+  ...datos,
+})
 
-/** Cliente real sobre un fetch falso que sirve fixtures. */
-function catastroFalso(rutas: Rutas, { caido = false } = {}) {
-  const urls: URL[] = []
-  const fn = async (u: string | URL | Request) => {
-    const url = new URL(String(u))
-    urls.push(url)
-    if (caido) throw new Error('Failed to fetch')
-    const op = url.pathname.split('/').pop()
-    const nombre =
-      op === 'Consulta_DNPLOC'
-        ? rutas.dnploc
-        : op === 'Consulta_RCCOOR_Distancia'
-          ? rutas.rccoor
-          : rutas.dnprc?.(url.searchParams.get('RefCat') ?? '')
-    return new Response(fixture(nombre ?? 'dnprc-error'))
+const BUENO = inmueble('BUENO', { m2: 100, planta: '01', anio: 2000 })
+const OTROS = [inmueble('OTRO1'), inmueble('LOCAL', { uso: 'Comercial', planta: '00' })]
+
+type Respuestas = {
+  direccion?: Resultado<Inmueble[]>
+  coordenadas?: Resultado<Parcela[]>
+  referencia?: (ref: string) => Resultado<Inmueble[]>
+}
+
+/** Implementa el puerto y registra las llamadas. */
+function catastroFalso(r: Respuestas = {}) {
+  const llamadas: { op: string; arg: unknown }[] = []
+  const catastro: ClienteCatastro = {
+    async buscarPorDireccion(l: Localizacion) {
+      llamadas.push({ op: 'direccion', arg: l })
+      return r.direccion ?? vacio
+    },
+    async buscarPorCoordenadas(c, provincia) {
+      llamadas.push({ op: 'coordenadas', arg: { ...c, provincia } })
+      return r.coordenadas ?? vacio
+    },
+    async buscarPorReferencia(ref) {
+      llamadas.push({ op: 'referencia', arg: ref })
+      return r.referencia?.(ref) ?? vacio
+    },
   }
-  const ops = () => urls.map((u) => u.pathname.split('_').slice(1).join('_'))
-  return { catastro: crearClienteCatastro(fn as typeof fetch), urls, ops }
+  return { catastro, llamadas, ops: () => llamadas.map((l) => l.op) }
 }
 
 function almacenFalso(inicial: Record<string, SeleccionManual> = {}) {
@@ -48,181 +74,207 @@ const anuncio = (datos: Partial<Anuncio> = {}): Anuncio => ({
   descripcion: '',
   mencionaTrastero: false,
   mencionaGaraje: false,
+  m2Construidos: 100,
+  planta: '1',
+  anio: 2000,
   ...datos,
 })
 
-// Alcalá 100: el 0017 es el único de 126 m² (3.º CD).
-const RC_3CD = '2853604VK4725D0017LM'
-const datos3CD = { m2Construidos: 126, planta: '3', anio: 1930 }
-const alcala100 = anuncio({
-  ...datos3CD,
+const coords = (aproximada = false) => ({ lat: 40.4, lon: -3.7, aproximada })
+const conDireccion = anuncio({
   direccion: { via: 'Calle de Alcalá', numero: '100' },
   municipio: 'Madrid',
   provincia: 'Madrid',
 })
-const centro = { lat: 40.415, lon: -3.705 }
-// Fixture de Alcalá 100 servida como si fuera la parcela más cercana.
-const dnprcParcela = (rc: string) => (rc === '0343111VK4704C' ? 'dnprc-parcela' : 'dnprc-error')
+const soloCoords = anuncio({ provincia: 'Madrid', coords: coords() })
+const parcela = (pc: string, distancia: number): Parcela => ({ pc, direccion: '', distancia })
+const deps = (catastro: ClienteCatastro, almacen = almacenFalso().almacen) => ({
+  catastro,
+  almacen,
+})
 
 describe('emparejar · dirección', () => {
-  it('dirección exacta y datos completos → alta y RC correcta', async () => {
-    const c = catastroFalso({ dnploc: 'dnploc-varios' })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen: almacenFalso().almacen })
+  it('candidato claro → alta, ordenado y sin descartar no residenciales', async () => {
+    const c = catastroFalso({ direccion: ok([...OTROS, BUENO]) })
+    const r = await emparejar(conDireccion, deps(c.catastro))
     if (!r.ok) throw new Error()
     expect(r.valor.origen).toBe('direccion')
     expect(r.valor.confianza).toBe('alta')
-    expect(r.valor.candidatos[0]?.inmueble.rc).toBe(RC_3CD)
-    expect(r.valor.candidatos).toHaveLength(34)
+    expect(r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO', 'OTRO1', 'LOCAL'])
   })
 
-  it('consulta DNPLOC con sigla y calle extraídas de la vía', async () => {
-    const c = catastroFalso({ dnploc: 'dnploc-varios' })
-    await emparejar(alcala100, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    expect(c.ops()).toEqual(['DNPLOC'])
-    expect(Object.fromEntries(c.urls[0]?.searchParams ?? [])).toMatchObject({
-      Provincia: 'Madrid',
-      Municipio: 'Madrid',
-      Sigla: 'CL',
-      Calle: 'ALCALA',
-      Numero: '100',
-    })
+  it('pasa sigla y calle extraídas de la vía', async () => {
+    const c = catastroFalso({ direccion: ok([BUENO]) })
+    await emparejar(conDireccion, deps(c.catastro))
+    expect(c.llamadas).toEqual([
+      {
+        op: 'direccion',
+        arg: {
+          provincia: 'Madrid',
+          municipio: 'Madrid',
+          sigla: 'CL',
+          calle: 'ALCALA',
+          numero: '100',
+        },
+      },
+    ])
   })
 
-  it('no residenciales se puntúan, no se descartan', async () => {
-    const c = catastroFalso({ dnploc: 'dnploc-varios' })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    if (!r.ok) throw new Error()
-    expect(r.valor.candidatos.some((x) => x.inmueble.uso === 'Comercial')).toBe(true)
-  })
-
-  it('dirección sin resultados y con coords → coords', async () => {
+  it('sin resultados y con coords → coords', async () => {
     const c = catastroFalso({
-      dnploc: 'dnploc-via-inexistente',
-      rccoor: 'rccoor-varias',
-      dnprc: dnprcParcela,
+      coordenadas: ok([parcela('P1', 1)]),
+      referencia: () => ok([BUENO]),
     })
-    const a = { ...alcala100, coords: { ...centro, aproximada: false } }
-    const r = await emparejar(a, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    if (!r.ok) throw new Error()
-    expect(r.valor.origen).toBe('coords')
-    expect(c.ops()[0]).toBe('DNPLOC')
+    const r = await emparejar({ ...conDireccion, coords: coords() }, deps(c.catastro))
+    expect(c.ops()).toEqual(['direccion', 'coordenadas', 'referencia'])
+    expect(r.ok && r.valor.origen).toBe('coords')
   })
 
-  it('dirección sin resultados y sin coords → ninguna', async () => {
-    const c = catastroFalso({ dnploc: 'dnploc-numero-inexistente' })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    expect(r).toEqual({
-      ok: true,
-      valor: { candidatos: [], confianza: 'ninguna', origen: 'direccion' },
-    })
+  it('sin resultados y sin coords → ninguna', async () => {
+    const r = await emparejar(conDireccion, deps(catastroFalso().catastro))
+    expect(r).toEqual(ok({ candidatos: [], confianza: 'ninguna', origen: 'direccion' }))
+  })
+
+  it('sin provincia o municipio → no consulta por dirección', async () => {
+    const c = catastroFalso()
+    await emparejar({ ...conDireccion, municipio: undefined }, deps(c.catastro))
+    expect(c.ops()).toEqual([])
   })
 })
 
 describe('emparejar · coords', () => {
-  const sinNumero = anuncio({
-    ...datos3CD,
-    direccion: { via: 'Calle de Alcalá' },
-    provincia: 'Madrid',
-    coords: { ...centro, aproximada: false },
-  })
-
-  it('sin número pero con coords → candidatos de parcelas cercanas', async () => {
-    const c = catastroFalso({ rccoor: 'rccoor-varias', dnprc: dnprcParcela })
-    const r = await emparejar(sinNumero, { catastro: c.catastro, almacen: almacenFalso().almacen })
+  it('sin número → DNPRC de cada parcela cercana', async () => {
+    const c = catastroFalso({
+      coordenadas: ok([parcela('P1', 1), parcela('P2', 5)]),
+      referencia: (pc) => ok(pc === 'P1' ? [BUENO] : OTROS),
+    })
+    const r = await emparejar(
+      { ...soloCoords, direccion: { via: 'Calle Mayor' } },
+      deps(c.catastro),
+    )
+    expect(c.llamadas[0]).toEqual({
+      op: 'coordenadas',
+      arg: { lat: 40.4, lon: -3.7, provincia: 'Madrid' },
+    })
+    expect(c.llamadas.slice(1).map((l) => l.arg)).toEqual(['P1', 'P2'])
     if (!r.ok) throw new Error()
-    expect(c.ops()).toEqual(['RCCOOR_Distancia', ...Array(10).fill('DNPRC')])
-    expect(c.urls[1]?.searchParams.get('RefCat')).toBe('0343111VK4704C')
     expect(r.valor.origen).toBe('coords')
-    expect(r.valor.candidatos[0]?.inmueble.rc).toBe(RC_3CD)
+    expect(r.valor.candidatos).toHaveLength(3)
     expect(r.valor.confianza).toBe('alta')
   })
 
-  it('coords aproximadas → nunca alta', async () => {
-    const c = catastroFalso({ rccoor: 'rccoor-varias', dnprc: dnprcParcela })
-    const a = { ...sinNumero, coords: { ...centro, aproximada: true } }
-    const r = await emparejar(a, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    if (!r.ok) throw new Error()
-    expect(r.valor.candidatos[0]?.inmueble.rc).toBe(RC_3CD)
-    expect(r.valor.confianza).toBe('media')
+  it('aproximadas → nunca alta', async () => {
+    const c = catastroFalso({ coordenadas: ok([parcela('P1', 1)]), referencia: () => ok([BUENO]) })
+    const r = await emparejar({ ...soloCoords, coords: coords(true) }, deps(c.catastro))
+    expect(r.ok && r.valor.confianza).toBe('media')
+  })
+
+  it('solo las 10 parcelas más cercanas', async () => {
+    const parcelas = Array.from({ length: 12 }, (_, i) => parcela(`P${i}`, 12 - i))
+    const c = catastroFalso({ coordenadas: ok(parcelas), referencia: () => ok([BUENO]) })
+    await emparejar(soloCoords, deps(c.catastro))
+    const consultadas = c.llamadas.filter((l) => l.op === 'referencia').map((l) => l.arg)
+    expect(consultadas).toEqual(['P11', 'P10', 'P9', 'P8', 'P7', 'P6', 'P5', 'P4', 'P3', 'P2'])
+  })
+
+  it('una parcela falla → se descarta y sigue con las demás', async () => {
+    const c = catastroFalso({
+      coordenadas: ok([parcela('P1', 1), parcela('P2', 2), parcela('P3', 3)]),
+      referencia: (pc) =>
+        pc === 'P1'
+          ? err({ tipo: 'api', codigo: '3', mensaje: 'x' })
+          : pc === 'P2'
+            ? err({ tipo: 'red', mensaje: 'x' })
+            : ok([BUENO]),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
+  })
+
+  it('fallan todas → error', async () => {
+    const c = catastroFalso({
+      coordenadas: ok([parcela('P1', 1), parcela('P2', 2)]),
+      referencia: (pc) => (pc === 'P1' ? vacio : err({ tipo: 'red', mensaje: 'x' })),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(r).toEqual(err({ tipo: 'red', mensaje: 'x' }))
+  })
+
+  it('todas sin inmuebles → ninguna', async () => {
+    const c = catastroFalso({ coordenadas: ok([parcela('P1', 1)]) })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(r).toEqual(ok({ candidatos: [], confianza: 'ninguna', origen: 'coords' }))
   })
 
   it('sin parcelas cercanas → ninguna', async () => {
-    const c = catastroFalso({ rccoor: 'rccoor-vacia' })
-    const r = await emparejar(sinNumero, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    expect(r).toEqual({
-      ok: true,
-      valor: { candidatos: [], confianza: 'ninguna', origen: 'coords' },
-    })
+    const r = await emparejar(soloCoords, deps(catastroFalso().catastro))
+    expect(r).toEqual(ok({ candidatos: [], confianza: 'ninguna', origen: 'coords' }))
   })
+})
 
-  it('ni dirección completa ni coords → ninguna, sin consultar', async () => {
-    const c = catastroFalso({})
-    const r = await emparejar(anuncio({ direccion: { via: 'Calle Mayor' } }), {
-      catastro: c.catastro,
-      almacen: almacenFalso().almacen,
-    })
-    expect(r).toEqual({
-      ok: true,
-      valor: { candidatos: [], confianza: 'ninguna', origen: 'direccion' },
-    })
-    expect(c.urls).toEqual([])
+describe('emparejar · sin datos', () => {
+  it("ni dirección completa ni coords → ninguna, origen 'ninguno', sin consultar", async () => {
+    const c = catastroFalso()
+    const r = await emparejar(anuncio({ direccion: { via: 'Calle Mayor' } }), deps(c.catastro))
+    expect(r).toEqual(ok({ candidatos: [], confianza: 'ninguna', origen: 'ninguno' }))
+    expect(c.ops()).toEqual([])
   })
 })
 
 describe('emparejar · errores', () => {
-  it('Catastro caído → error de red, sin lanzar', async () => {
-    const c = catastroFalso({}, { caido: true })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    expect(r).toMatchObject({ ok: false, error: { tipo: 'red' } })
+  it.each<ErrorCatastro>([
+    { tipo: 'red', mensaje: 'caído' },
+    { tipo: 'api', codigo: '99', mensaje: 'x' },
+    { tipo: 'noSoportado' },
+  ])('dirección con error %j → se propaga sin lanzar ni probar coords', async (e) => {
+    const c = catastroFalso({ direccion: err(e) })
+    const r = await emparejar({ ...conDireccion, coords: coords() }, deps(c.catastro))
+    expect(r).toEqual(err(e))
+    expect(c.ops()).toEqual(['direccion'])
   })
 
-  it('error de API en una parcela → error', async () => {
-    const c = catastroFalso({
-      rccoor: 'rccoor-varias',
-      dnprc: (rc) => (rc === '0342202VK4704A' ? 'dnprc-rc-invalida' : 'dnprc-error'),
-    })
-    const a = anuncio({ coords: { ...centro, aproximada: false } })
-    const r = await emparejar(a, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    expect(r).toMatchObject({ ok: false, error: { tipo: 'api' } })
-  })
-
-  it('provincia foral → noSoportado', async () => {
-    const c = catastroFalso({})
-    const a = { ...alcala100, provincia: 'Bizkaia', coords: { ...centro, aproximada: false } }
-    const r = await emparejar(a, { catastro: c.catastro, almacen: almacenFalso().almacen })
-    expect(r).toEqual({ ok: false, error: { tipo: 'noSoportado' } })
-    expect(c.urls).toEqual([])
+  it('coords con error → se propaga', async () => {
+    const c = catastroFalso({ coordenadas: err({ tipo: 'noSoportado' }) })
+    expect(await emparejar(soloCoords, deps(c.catastro))).toEqual(err({ tipo: 'noSoportado' }))
   })
 })
 
 describe('emparejar · manual', () => {
-  it('selección guardada tiene prioridad (origen manual)', async () => {
-    const c = catastroFalso({ dnploc: 'dnploc-varios', dnprc: () => 'dnprc-rc' })
-    const { almacen } = almacenFalso({ '42': { rc: '2853604VK4725D0001YP' } })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen })
-    expect(c.ops()).toEqual(['DNPRC'])
-    expect(c.urls[0]?.searchParams.get('RefCat')).toBe('2853604VK4725D0001YP')
-    if (!r.ok) throw new Error()
-    expect(r.valor.origen).toBe('manual')
-    expect(r.valor.confianza).toBe('alta')
-    expect(r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['2853604VK4725D0001YP'])
+  it('selección guardada tiene prioridad (origen manual, alta)', async () => {
+    const c = catastroFalso({
+      direccion: ok([BUENO]),
+      referencia: () => ok([OTROS[1] as Inmueble]),
+    })
+    const { almacen } = almacenFalso({ '42': { rc: 'LOCAL' } })
+    const r = await emparejar(conDireccion, deps(c.catastro, almacen))
+    expect(c.llamadas).toEqual([{ op: 'referencia', arg: 'LOCAL' }])
+    expect(r).toEqual(
+      ok({
+        candidatos: [{ inmueble: OTROS[1], puntuacion: 0 }],
+        confianza: 'alta',
+        origen: 'manual',
+      }),
+    )
   })
 
   it('solo aplica a su anuncio', async () => {
-    const c = catastroFalso({ dnploc: 'dnploc-varios' })
-    const { almacen } = almacenFalso({ otro: { rc: '2853604VK4725D0001YP' } })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen })
+    const c = catastroFalso({ direccion: ok([BUENO]) })
+    const { almacen } = almacenFalso({ otro: { rc: 'LOCAL' } })
+    const r = await emparejar(conDireccion, deps(c.catastro, almacen))
     expect(r.ok && r.valor.origen).toBe('direccion')
   })
 
   it('RC guardada inexistente → ninguna', async () => {
-    const c = catastroFalso({ dnprc: () => 'dnprc-error' })
-    const { almacen } = almacenFalso({ '42': { rc: '2853604VK4725D9999ZZ' } })
-    const r = await emparejar(alcala100, { catastro: c.catastro, almacen })
-    expect(r).toEqual({
-      ok: true,
-      valor: { candidatos: [], confianza: 'ninguna', origen: 'manual' },
-    })
+    const { almacen } = almacenFalso({ '42': { rc: 'X' } })
+    const r = await emparejar(conDireccion, deps(catastroFalso().catastro, almacen))
+    expect(r).toEqual(ok({ candidatos: [], confianza: 'ninguna', origen: 'manual' }))
+  })
+
+  it('error al consultar la RC guardada → se propaga', async () => {
+    const c = catastroFalso({ referencia: () => err({ tipo: 'red', mensaje: 'x' }) })
+    const { almacen } = almacenFalso({ '42': { rc: 'X' } })
+    const r = await emparejar(conDireccion, deps(c.catastro, almacen))
+    expect(r).toEqual(err({ tipo: 'red', mensaje: 'x' }))
   })
 })
 

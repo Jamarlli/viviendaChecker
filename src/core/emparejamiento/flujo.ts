@@ -1,5 +1,6 @@
 import type { Anuncio, Emparejamiento, Inmueble, OrigenEmparejamiento } from '../tipos'
 import type { Almacen, ClienteCatastro, ErrorCatastro, Resultado } from './puertos'
+import { MAX_PARCELAS } from './constantes'
 import { calcularConfianza, ordenarCandidatos } from './puntuacion'
 import { separarVia } from './via'
 
@@ -35,19 +36,19 @@ function aEmparejamiento(
 async function porCoordenadas(
   anuncio: Anuncio,
   catastro: ClienteCatastro,
-  coords: { lat: number; lon: number },
+  { lat, lon }: { lat: number; lon: number },
 ): Promise<Resultado<Inmueble[]>> {
-  const parcelas = await catastro.buscarPorCoordenadas(coords, anuncio.provincia)
+  const parcelas = await catastro.buscarPorCoordenadas({ lat, lon }, anuncio.provincia)
   if (!parcelas.ok) return parcelas
-  const rs = await Promise.all(parcelas.valor.map((p) => catastro.buscarPorReferencia(p.pc)))
-  const inmuebles: Inmueble[] = []
-  for (const r of rs) {
-    if (r.ok) inmuebles.push(...r.valor)
-    else if (r.error.tipo !== 'sinResultados') return r
-  }
-  return inmuebles.length
-    ? { ok: true, valor: inmuebles }
-    : fallo({ tipo: 'sinResultados', mensaje: 'Sin inmuebles' })
+  const cercanas = [...parcelas.valor]
+    .sort((a, b) => a.distancia - b.distancia)
+    .slice(0, MAX_PARCELAS)
+  const rs = await Promise.all(cercanas.map((p) => catastro.buscarPorReferencia(p.pc)))
+  // Una parcela que falla se descarta; solo es error si no queda ninguna.
+  const inmuebles = rs.flatMap((r) => (r.ok ? r.valor : []))
+  if (inmuebles.length) return { ok: true, valor: inmuebles }
+  const error = rs.find((r) => !r.ok && r.error.tipo !== 'sinResultados')
+  return error ?? fallo({ tipo: 'sinResultados', mensaje: 'Sin inmuebles' })
 }
 
 /** Spec 02: manual → dirección (DNPLOC) → coords (RCCOOR + DNPRC) → ninguna. Nunca lanza. */
@@ -74,7 +75,7 @@ export async function emparejar(
 
   if (coords)
     return aEmparejamiento(anuncio, await porCoordenadas(anuncio, catastro, coords), 'coords')
-  return ninguna('direccion')
+  return ninguna('ninguno')
 }
 
 /** Guarda el candidato elegido o la RC pegada. Devuelve false si la RC no es válida. */

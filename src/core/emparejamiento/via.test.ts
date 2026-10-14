@@ -31,6 +31,32 @@ describe('separarVia', () => {
     expect(separarVia(via)).toEqual({ sigla, calle })
   })
 
+  it.each([
+    ['Carrer de Mallorca', 'CL', 'MALLORCA'],
+    ["Carrer d'Aragó", 'CL', 'ARAGO'],
+    ["Carrer de l'Escorial", 'CL', 'ESCORIAL'],
+    ['Carrer dels Arcs', 'CL', 'ARCS'],
+    ['Carrer de les Moreres', 'CL', 'MORERES'],
+    ['Avinguda Diagonal', 'AV', 'DIAGONAL'],
+    ['Plaça de Catalunya', 'PZ', 'CATALUNYA'],
+    ['Praza do Obradoiro', 'PZ', 'OBRADOIRO'],
+    ['Passeig de Gràcia', 'PS', 'GRACIA'],
+    ['Ronda de Sant Pere', 'RD', 'SANT PERE'],
+    ['Travessera de Gràcia', 'TR', 'GRACIA'],
+    ['Travessia del Mar', 'TR', 'MAR'],
+    ['Camí de la Font', 'CM', 'FONT'],
+    ['Camiño dos Muíños', 'CM', 'MUIÑOS'],
+    ['Rúa do Vilar', 'RU', 'VILAR'],
+    ['Rúa da Raíña', 'RU', 'RAIÑA'],
+    ['Rúa das Hortas', 'RU', 'HORTAS'],
+  ])('catalán/valenciano/gallego %s → %s %s', (via, sigla, calle) => {
+    expect(separarVia(via)).toEqual({ sigla, calle })
+  })
+
+  it('apóstrofo tipográfico', () => {
+    expect(separarVia('Carrer d’Aragó')).toEqual({ sigla: 'CL', calle: 'ARAGO' })
+  })
+
   it('sin tipo de vía → CL', () => {
     expect(separarVia('Alcalá')).toEqual({ sigla: 'CL', calle: 'ALCALA' })
   })

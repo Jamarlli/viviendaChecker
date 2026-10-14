@@ -6,17 +6,18 @@ Dado un `Anuncio`, encuentra los inmuebles catastrales candidatos y su confianza
 ```ts
 Inmueble { rc: string; uso: string; m2: number; anio: number; planta: string; puerta: string; direccion: string }
 Candidato { inmueble: Inmueble; puntuacion: number /* 0-1 */ }
-Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' | 'ninguna'; origen: 'direccion' | 'coords' | 'manual' }
+Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' | 'ninguna'; origen: 'direccion' | 'coords' | 'manual' | 'ninguno' }
 ```
+`origen: 'ninguno'`: sin dirección completa ni coords; no se consultó el Catastro.
 
 ## Flujo
 0. Selección manual guardada para el id del anuncio → `DNPRC` de esa RC; `origen: 'manual'`, confianza `alta`.
 1. Parcelas: con vía + número (+ provincia y municipio) → `DNPLOC`; si no (o sin resultados), con coords → `RCCOOR_Distancia`; si no → `ninguna`.
-2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.)
+2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.) Por coords, solo las 10 parcelas más cercanas; la que falla se descarta, y solo es error si fallan todas.
 3. Puntuar cada inmueble y ordenar.
 
 - `emparejar(anuncio, { catastro, almacen })` devuelve `Resultado<Emparejamiento>`; nunca lanza. `sinResultados` → `ninguna`; `noSoportado`, `red` y `api` → error.
-- `Sigla` y `Calle` salen de la vía del anuncio: "Calle de Alcalá" → `CL` `ALCALA`. Se quita el artículo tras el tipo (de, del, de la…); sin tipo reconocible → `CL`.
+- `Sigla` y `Calle` salen de la vía del anuncio: "Calle de Alcalá" → `CL` `ALCALA`. Se quita el artículo tras el tipo (de, del, de la, d', de l', dels, de les, do, da, dos, das…); sin tipo reconocible → `CL`. Tipos en catalán, valenciano y gallego → sigla castellana (Carrer → `CL`, Avinguda → `AV`, Plaça/Praza → `PZ`, Passeig → `PS`, Travessera → `TR`, Camí/Camiño → `CM`); Rúa → `RU` (verificado con la API).
 - Selección manual: RC de 20 car. (espacios y minúsculas se normalizan), guardada en local por id de anuncio.
 
 ## Puntuación
