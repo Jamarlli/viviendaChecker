@@ -264,6 +264,13 @@ describe('buscarPorReferencia (DNPRC)', () => {
     expect(r.valor).toHaveLength(34)
   })
 
+  it('superficie con punto de miles ("1.149") → 1149', async () => {
+    const f = fetchFalso(fixture('dnprc-sfc-miles'))
+    const r = await crearClienteCatastro(f.fn).buscarPorReferencia('2565814VK4726F')
+    if (!r.ok) throw new Error('esperaba ok')
+    expect(r.valor.find((i) => i.rc === '2565814VK4726F0002OM')?.m2).toBe(1149)
+  })
+
   it('RC (20 car.) → un inmueble', async () => {
     const f = fetchFalso(fixture('dnprc-rc'))
     const r = await crearClienteCatastro(f.fn).buscarPorReferencia('2853604VK4725D0001YP')

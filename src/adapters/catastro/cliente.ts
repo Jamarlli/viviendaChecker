@@ -62,7 +62,8 @@ function aInmueble(rcJson: Json, dt: Json, debi: Json): Inmueble {
   return {
     rc: rc(rcJson),
     uso: debi?.luso ?? '',
-    m2: Number(debi?.sfc ?? 0),
+    // "1.149": punto de miles.
+    m2: Number(String(debi?.sfc ?? 0).replace(/\./g, '')),
     anio: Number(debi?.ant ?? 0),
     planta: lourb?.loint?.pt ?? '',
     puerta: lourb?.loint?.pu ?? '',

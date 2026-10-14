@@ -58,4 +58,21 @@ describe('analizar', () => {
     expect(f.llamadas.map((l) => l.arg)).toContain('1111111VK1111A')
     expect(r.discrepancias.some((d) => d.campo === 'anexo')).toBe(true)
   })
+
+  it('por coords → anexos de los inmuebles leídos, aunque el filtro de superficie los descarte', async () => {
+    const a = anuncio({
+      direccion: undefined,
+      coords: { lat: 40.4, lon: -3.7, aproximada: false },
+      mencionaTrastero: true,
+    })
+    const r = await analizar(
+      a,
+      deps({
+        radio: { ok: true, valor: [{ pc: '1111111VK1111A', direccion: '', distancia: 1 }] },
+        referencia: () => ({ ok: true, valor: [BUENO, TRASTERO] }),
+      }),
+    )
+    expect(r.emparejamiento?.candidatos.map((c) => c.inmueble.rc)).toEqual([BUENO.rc])
+    expect(r.discrepancias.some((d) => d.campo === 'anexo')).toBe(true)
+  })
 })

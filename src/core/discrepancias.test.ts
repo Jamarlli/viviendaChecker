@@ -113,6 +113,43 @@ it('planta del anuncio desconocida → no se evalúa', () => {
   expect(nivel(anuncio({ planta: 'xx' }), 'planta', inmueble({ planta: 'OD' }))).toBeUndefined()
 })
 
+describe('superficie con garaje o trastero sumados', () => {
+  const vivienda = (m2: number) => inmueble({ rc: '1111111AA1111A0001AA', m2 })
+  const plaza = (m2: number) =>
+    inmueble({ rc: '1111111AA1111A0002BB', m2, uso: 'Almacen-Estacionamiento' })
+  const a = anuncio({ m2Construidos: 194, mencionaGaraje: true, garaje: 'incluido' })
+  const sup = (an: Anuncio, v: Inmueble, parcela: Inmueble[] = []) =>
+    de(an, v, parcela).find((d) => d.campo === 'superficie')
+  const GARAJE = 'El anuncio puede estar sumando el garaje/trastero'
+
+  it('> 20 % que se explica con la plaza de la parcela → revisar, sin anexo duplicado', () => {
+    const d = de(a, vivienda(150), [vivienda(150), plaza(40)])
+    expect(d.find((x) => x.campo === 'superficie')).toMatchObject({ nivel: 'revisar' })
+    expect(d.find((x) => x.campo === 'superficie')?.explicacion).toContain(GARAJE)
+    expect(d.some((x) => x.campo === 'anexo')).toBe(false)
+  })
+
+  it('sin plaza conocida, con el rango 20–35 m² (±5 %)', () => {
+    expect(sup(a, vivienda(150))?.nivel).toBe('revisar')
+    expect(sup(a, vivienda(120))?.nivel).toBe('aviso')
+  })
+
+  it('10–20 % explicado → misma explicación', () => {
+    expect(sup(a, vivienda(170), [plaza(25)])?.explicacion).toContain(GARAJE)
+  })
+
+  it('el anexo debe cubrir lo que pasa del 10 %: anuncio 112, vivienda 100, trastero 2 → no', () => {
+    const d = sup(anuncio({ m2Construidos: 112, trastero: true }), vivienda(100), [plaza(2)])
+    expect(d?.nivel).toBe('revisar')
+    expect(d?.explicacion).not.toContain(GARAJE)
+  })
+
+  it('mención sin garaje incluido ni trastero en básicas → aviso', () => {
+    const solo = anuncio({ m2Construidos: 194, mencionaGaraje: true })
+    expect(sup(solo, vivienda(150), [plaza(40)])?.nivel).toBe('aviso')
+  })
+})
+
 describe('anexo', () => {
   const almacen = inmueble({ rc: '0000000AA0000A0002BB', uso: 'Almacen-Estacionamiento' })
 

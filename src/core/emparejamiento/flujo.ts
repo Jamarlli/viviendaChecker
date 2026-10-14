@@ -23,15 +23,18 @@ function aEmparejamiento(
   r: Resultado<Inmueble[]>,
   origen: OrigenEmparejamiento,
   distancias?: Map<Inmueble, number>,
+  parcela?: Inmueble[],
 ): Resultado<Emparejamiento> {
   if (!r.ok) return r.error.tipo === 'sinResultados' ? ninguna(origen) : fallo(r.error)
-  const candidatos = ordenarCandidatos(anuncio, r.valor, distancias)
+  const candidatos = ordenarCandidatos(anuncio, r.valor, distancias, parcela)
   // Lo eligió el usuario: no hay duda que medir.
   const confianza =
     origen === 'manual'
       ? 'alta'
       : calcularConfianza(candidatos, { coordsAproximadas: anuncio.coords?.aproximada })
-  return { ok: true, valor: { candidatos, confianza, origen } }
+  const valor: Emparejamiento = { candidatos, confianza, origen }
+  if (parcela) valor.leidos = parcela
+  return { ok: true, valor }
 }
 
 /** `f` sobre `xs` con como mucho `n` a la vez, en orden; abortada, no empieza más. */
@@ -73,7 +76,7 @@ async function inmueblesDe(
   )
   // Una parcela que falla se descarta; solo es error si no queda ninguna.
   const inmuebles = rs.flatMap((r) => (r.ok ? r.valor : []))
-  const conSuperficie = inmuebles.filter((i) => coincideSuperficie(anuncio, i) !== false)
+  const conSuperficie = inmuebles.filter((i) => coincideSuperficie(anuncio, i, inmuebles) !== 0)
   if (conSuperficie.length) return { ok: true, valor: conSuperficie }
   if (inmuebles.length) return { ok: true, valor: inmuebles }
   const error = rs.find((r) => !r.ok && r.error.tipo !== 'sinResultados')
@@ -126,7 +129,8 @@ export async function emparejar(
   if (coords) {
     const distancias = new Map<Inmueble, number>()
     const r = await porCoordenadas(anuncio, catastro, coords, distancias, signal)
-    return aEmparejamiento(anuncio, r, 'coords', distancias)
+    // Todos los inmuebles leídos, también los que el filtro de superficie descartó (p. ej. garajes).
+    return aEmparejamiento(anuncio, r, 'coords', distancias, [...distancias.keys()])
   }
   return ninguna('ninguno')
 }

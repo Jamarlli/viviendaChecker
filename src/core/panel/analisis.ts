@@ -41,7 +41,7 @@ export async function analizar(
   const parcela =
     e.origen === 'manual'
       ? await inmueblesParcela(elegido, deps, signal)
-      : e.candidatos.map((c) => c.inmueble)
+      : (e.leidos ?? e.candidatos.map((c) => c.inmueble))
   return {
     ...base,
     emparejamiento: e,

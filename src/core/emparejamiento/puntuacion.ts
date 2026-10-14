@@ -8,9 +8,11 @@ import {
   TOLERANCIA_SUPERFICIE,
   UMBRAL_ALTA,
   UMBRAL_MEDIA,
+  VALOR_ANEXO,
   VENTAJA_ALTA,
   VENTAJA_MEDIA,
 } from './constantes'
+import { cuadraConAnexo } from '../anexos'
 import { normalizarPlanta } from '../planta'
 
 // Evita que el redondeo binario rompa los bordes (p. ej. 1 - 0,8 < 0,2).
@@ -18,11 +20,19 @@ const EPSILON = 1e-9
 
 type Senal = keyof typeof PESOS
 
-/** `undefined` si el anuncio no da superficie. */
-export function coincideSuperficie(anuncio: Anuncio, inmueble: Inmueble): boolean | undefined {
+/**
+ * 1 directa, 0,5 sumando garaje o trastero de `parcela` (spec 02), 0 no; `undefined` si el
+ * anuncio no da superficie.
+ */
+export function coincideSuperficie(
+  anuncio: Anuncio,
+  inmueble: Inmueble,
+  parcela: Inmueble[] = [],
+): number | undefined {
   const m2 = anuncio.m2Construidos ?? (anuncio.m2Utiles && anuncio.m2Utiles * FACTOR_UTILES)
   if (!m2) return undefined
-  return Math.abs(inmueble.m2 - m2) <= m2 * TOLERANCIA_SUPERFICIE + EPSILON
+  if (Math.abs(inmueble.m2 - m2) <= m2 * TOLERANCIA_SUPERFICIE + EPSILON) return 1
+  return cuadraConAnexo(anuncio, m2, inmueble, parcela) ? VALOR_ANEXO : 0
 }
 
 /** `undefined` si el anuncio no da planta evaluable. Ático sin planta → 'atico'. */
@@ -39,11 +49,11 @@ function valorAnio(anuncio: number, catastro: number): number {
   return dif <= MARGEN_ANIO ? 1 : dif > MARGEN_ANIO_PENALIZA ? -1 : 0
 }
 
-export function puntuar(anuncio: Anuncio, inmueble: Inmueble): number {
+export function puntuar(anuncio: Anuncio, inmueble: Inmueble, parcela: Inmueble[] = []): number {
   const valor: Partial<Record<Senal, number>> = {}
 
-  const superficie = coincideSuperficie(anuncio, inmueble)
-  if (superficie !== undefined) valor.superficie = Number(superficie)
+  const superficie = coincideSuperficie(anuncio, inmueble, parcela)
+  if (superficie !== undefined) valor.superficie = superficie
 
   const planta = coincidePlanta(anuncio, inmueble)
   if (planta !== undefined) valor.planta = Number(planta)
@@ -72,10 +82,11 @@ export function ordenarCandidatos(
   anuncio: Anuncio,
   inmuebles: Inmueble[],
   distancias: Map<Inmueble, number> = new Map(),
+  parcela: Inmueble[] = inmuebles,
 ): Candidato[] {
   return inmuebles
     .map((inmueble) => {
-      const c: Candidato = { inmueble, puntuacion: puntuar(anuncio, inmueble) }
+      const c: Candidato = { inmueble, puntuacion: puntuar(anuncio, inmueble, parcela) }
       const distancia = distancias.get(inmueble)
       if (distancia !== undefined) c.distancia = distancia
       return { c, misma: Number(coincidePlanta(anuncio, inmueble) ?? false) }
