@@ -67,14 +67,35 @@ describe('calcularGastos', () => {
     expect(partida(300000, 'Madrid', 'ajd', true)).toEqual({ min: 2250, max: 2250 })
   })
 
-  it.each(['Las Palmas', 'Tenerife', 'Ceuta', 'Melilla'])(
-    'obra nueva en %s: sin IVA (IGIC/IPSI pendiente), con AJD',
-    (provincia) => {
-      const conceptos = calcula(200000, provincia, true)?.desglose.map((p) => p.concepto)
-      expect(conceptos).not.toContain('iva')
-      expect(conceptos).toContain('ajd')
+  it.each([
+    ['Las Palmas', 'igic', 14000],
+    ['Tenerife', 'igic', 14000],
+    ['Ceuta', 'ipsi', 8000],
+    ['Melilla', 'ipsi', 8000],
+  ] as const)(
+    'obra nueva en %s: %s en lugar de IVA, con AJD y nota',
+    (provincia, concepto, importe) => {
+      const g = calcula(200000, provincia, true)
+      expect(g?.desglose.map((p) => p.concepto)).toEqual([
+        concepto,
+        'ajd',
+        'notaria',
+        'registro',
+        'gestoria',
+      ])
+      expect(partida(200000, provincia, concepto, true)).toEqual({ min: importe, max: importe })
+      expect(g?.nota).toMatch(/VPO/)
     },
   )
+
+  it('obra nueva en Canarias: la nota avisa del tipo reducido por vivienda habitual', () => {
+    expect(calcula(200000, 'Las Palmas', true)?.nota).toMatch(/vivienda habitual/)
+  })
+
+  it('sin nota fuera de Canarias, Ceuta y Melilla o en segunda mano', () => {
+    expect(calcula(200000, 'Madrid', true)?.nota).toBeUndefined()
+    expect(calcula(200000, 'Ceuta')?.nota).toBeUndefined()
+  })
 
   describe('ITP marginal', () => {
     it.each([

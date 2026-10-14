@@ -13,6 +13,8 @@ export interface ComunidadImpuestos {
   provincias: { nombre: string; variantes: string[] }[]
   itp: { modo: 'marginal' | 'total'; tramos: Tramo[] }
   ajd: number
+  /** Canarias (IGIC) y Ceuta y Melilla (IPSI): sustituye al IVA. */
+  obraNueva?: { impuesto: 'igic' | 'ipsi'; tipo: number; nota: string }
 }
 
 export interface TablaImpuestos {
@@ -20,9 +22,7 @@ export interface TablaImpuestos {
   gastos: { notaria: Rango; registro: Rango; gestoria: Rango }
 }
 
-const IVA = 0.1
-// IGIC (Canarias) e IPSI (Ceuta y Melilla) sustituyen al IVA: pendiente de modelar.
-const SIN_IVA = new Set(['Canarias', 'Ceuta', 'Melilla'])
+const IVA = { impuesto: 'iva', tipo: 0.1 } as const
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim()
 
@@ -55,11 +55,10 @@ export function calcularGastos(anuncio: Anuncio, tabla: TablaImpuestos): Gastos 
   const c = comunidadDe(provincia, tabla)
   if (!c) return null
 
+  const indirecto = c.obraNueva ?? IVA
   const impuestos: PartidaGasto[] = obraNueva
     ? [
-        ...(SIN_IVA.has(c.nombre)
-          ? []
-          : [{ concepto: 'iva' as const, importe: fijo(precio * IVA) }]),
+        { concepto: indirecto.impuesto, importe: fijo(precio * indirecto.tipo) },
         { concepto: 'ajd', importe: fijo(precio * c.ajd) },
       ]
     : [{ concepto: 'itp', importe: fijo(itp(precio, c.itp)) }]
@@ -78,5 +77,7 @@ export function calcularGastos(anuncio: Anuncio, tabla: TablaImpuestos): Gastos 
     }),
     { min: 0, max: 0 },
   )
-  return { comunidad: c.nombre, desglose, total }
+  const gastos: Gastos = { comunidad: c.nombre, desglose, total }
+  if (obraNueva && c.obraNueva) gastos.nota = c.obraNueva.nota
+  return gastos
 }

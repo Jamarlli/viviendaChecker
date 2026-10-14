@@ -89,7 +89,14 @@
       ],
       "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.065 }] },
       "ajd": 0.0075,
-      "nota": "Obra nueva: IGIC en lugar de IVA.",
+      "obraNueva": {
+        "impuesto": "igic",
+        "tipo": 0.07,
+        "nota": "IGIC general 7 %. 5 % (o 3 % con requisitos de edad, renta o familia) si es vivienda habitual y la base no supera 200.000 € (300.000-400.000 € familia numerosa); 0 % VPO vendida por el promotor.",
+        "fuente": "https://sede.gobiernodecanarias.org/boc/boc-a-2025-256-4414.pdf",
+        "fechaConsulta": "2026-10-14",
+        "verificado": true
+      },
       "fuente": "https://www.hacienda.gob.es/sgfal/financiacionterritorial/autonomica/capitulo-i-tributacion-autonomica-2026.pdf",
       "fechaConsulta": "2026-10-08",
       "verificado": true
@@ -278,7 +285,15 @@
       "provincias": [{ "nombre": "Ceuta", "variantes": [] }],
       "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.03 }] },
       "ajd": 0.0025,
-      "nota": "Tipos estatales (6 % y 0,5 %) con bonificación del 50 % (art. 57 bis). Obra nueva: IPSI en lugar de IVA.",
+      "nota": "Tipos estatales (6 % y 0,5 %) con bonificación del 50 % (art. 57 bis).",
+      "obraNueva": {
+        "impuesto": "ipsi",
+        "tipo": 0.04,
+        "nota": "IPSI general 4 % (art. 33.Tres de la ordenanza); 2 % VPO de régimen especial o promoción pública.",
+        "fuente": "https://www.ceuta.es/ceuta/component/jdownloads/finish/1583-enero/9410-bocce-extra2-30-01-2019?Itemid=534",
+        "fechaConsulta": "2026-10-14",
+        "verificado": true
+      },
       "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359",
       "fechaConsulta": "2026-10-08",
       "verificado": true
@@ -288,7 +303,15 @@
       "provincias": [{ "nombre": "Melilla", "variantes": [] }],
       "itp": { "modo": "marginal", "tramos": [{ "desde": 0, "tipo": 0.03 }] },
       "ajd": 0.0025,
-      "nota": "Tipos estatales (6 % y 0,5 %) con bonificación del 50 % (art. 57 bis). Obra nueva: IPSI en lugar de IVA.",
+      "nota": "Tipos estatales (6 % y 0,5 %) con bonificación del 50 % (art. 57 bis).",
+      "obraNueva": {
+        "impuesto": "ipsi",
+        "tipo": 0.04,
+        "nota": "IPSI general 4 % en la entrega de inmuebles; 0,5 % VPO en primera transmisión por el promotor.",
+        "fuente": "https://www.melilla.es/melillaportal/contenedor.jsp?seccion=s_fdes_d4_v1.jsp&codbusqueda=227&language=es&codResi=1&codMenuPN=601&codMenuSN=1&codMenuTN=182&codMenu=338&layout=contenedor.jsp",
+        "fechaConsulta": "2026-10-14",
+        "verificado": true
+      },
       "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359",
       "fechaConsulta": "2026-10-08",
       "verificado": true
