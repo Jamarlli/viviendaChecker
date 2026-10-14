@@ -3,7 +3,7 @@ import { crearClienteCatastro } from '../adapters/catastro/cliente'
 import { crearAlmacen, crearSesion } from '../adapters/navegador/almacenes'
 import type { TablaImpuestos } from '../core/gastos'
 import { crearControlador } from '../core/panel/controlador'
-import type { MensajeAlFondo, MensajeAlPanel } from '../core/panel/mensajes'
+import { validarMensaje, type MensajeAlPanel } from '../core/panel/mensajes'
 
 export default defineBackground(() => {
   browser.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(console.error)
@@ -26,12 +26,17 @@ export default defineBackground(() => {
   })
   browser.tabs.onRemoved.addListener((tab) => void control.olvidar(tab))
 
-  browser.runtime.onMessage.addListener((m: MensajeAlFondo, remitente, responder) => {
+  const urlPanel = browser.runtime.getURL('/sidepanel.html')
+
+  browser.runtime.onMessage.addListener((bruto: unknown, remitente, responder) => {
     const tab = remitente.tab?.id
+    const m = validarMensaje(bruto, { tab, url: remitente.url }, urlPanel)
+    if (!m) return false
     const respuesta = (() => {
       switch (m.tipo) {
         case 'anuncio':
-          return tab === undefined ? undefined : control.recibirAnuncio(tab, m.anuncio)
+          // validarMensaje garantiza la pestaña.
+          return control.recibirAnuncio(tab ?? -1, m.anuncio)
         case 'pedirEstado':
           return control.estado(m.tab)
         case 'confirmar':
@@ -42,7 +47,6 @@ export default defineBackground(() => {
           return control.inmueblesParcela(m.tab, m.pc)
       }
     })()
-    if (!respuesta) return false
     respuesta.then(responder, (e) => {
       console.error(e)
       responder(undefined)

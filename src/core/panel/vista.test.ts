@@ -7,6 +7,7 @@ import {
   enlaces,
   etiquetaInmueble,
   euros,
+  mensajeConfirmar,
   mensajeError,
   notasGastos,
   ordenarDiscrepancias,
@@ -104,8 +105,20 @@ describe('mensajeError', () => {
   it('red', () => {
     expect(mensajeError({ tipo: 'red', mensaje: 'x' })).toMatch(/No se pudo conectar/)
   })
+  it('sin anuncio: pide recargar', () => {
+    expect(mensajeError({ tipo: 'sinAnuncio' })).toMatch(/Recarga/)
+  })
   it('api, con el mensaje del Catastro', () => {
     expect(mensajeError({ tipo: 'api', mensaje: 'FALLO' })).toMatch(/FALLO/)
+  })
+})
+
+describe('mensajeConfirmar', () => {
+  it('distingue RC no válida de falta de datos', () => {
+    expect(mensajeConfirmar('ok')).toBeUndefined()
+    expect(mensajeConfirmar('rcInvalida')).toMatch(/20/)
+    expect(mensajeConfirmar('sinAnuncio')).toMatch(/Recarga/)
+    expect(mensajeConfirmar(undefined)).toMatch(/No se pudo/)
   })
 })
 

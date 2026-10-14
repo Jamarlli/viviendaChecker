@@ -20,34 +20,52 @@ export interface DepsControlador extends DepsAnalisis {
   emitir(tab: number, estado: EstadoPanel): void
 }
 
+/** La pestaña no tiene anuncio ni en memoria ni en sesión. */
+export const SIN_ANUNCIO = { ok: false, error: { tipo: 'sinAnuncio' } } as const
+
+export type RespuestaAccion<T> = Resultado<T> | typeof SIN_ANUNCIO
+
+export type ResultadoConfirmar = 'ok' | 'rcInvalida' | 'sinAnuncio'
+
 const NO_SOPORTADO: EstadoPanel = { tipo: 'noSoportado' }
-const sinDatos: Resultado<never> = {
-  ok: false,
-  error: { tipo: 'sinResultados', mensaje: 'Faltan provincia o municipio' },
-}
 
 export function crearControlador(deps: DepsControlador) {
   const estados = new Map<number, EstadoPanel>()
   const anuncios = new Map<number, Anuncio>()
-  const pendientes = new Set<Promise<void>>()
+  const enCurso = new Map<number, { id: string; promesa: Promise<void> }>()
+  // Cada análisis o `olvidar` invalida los anteriores de la pestaña.
+  const versiones = new Map<number, number>()
 
   const fijar = (tab: number, estado: EstadoPanel) => {
     estados.set(tab, estado)
     deps.emitir(tab, estado)
   }
 
-  async function analizarTab(tab: number, anuncio: Anuncio) {
-    anuncios.set(tab, anuncio)
-    fijar(tab, { tipo: 'cargando' })
-    const analisis = await analizar(anuncio, deps)
-    // Otro anuncio llegó a la pestaña mientras tanto.
-    if (anuncios.get(tab) !== anuncio) return
-    fijar(tab, { tipo: 'analisis', analisis })
+  const nuevaVersion = (tab: number) => {
+    const v = (versiones.get(tab) ?? 0) + 1
+    versiones.set(tab, v)
+    return v
   }
 
-  function enSegundoPlano(p: Promise<void>) {
-    pendientes.add(p)
-    p.finally(() => pendientes.delete(p))
+  /** `forzar`: rehace aunque haya uno en curso del mismo anuncio (p. ej. tras confirmar). */
+  function analizarTab(tab: number, anuncio: Anuncio, forzar = false): Promise<void> {
+    const actual = enCurso.get(tab)
+    if (actual && !forzar && actual.id === anuncio.id) return actual.promesa
+    const v = nuevaVersion(tab)
+    anuncios.set(tab, anuncio)
+    fijar(tab, { tipo: 'cargando' })
+    const promesa = analizar(anuncio, deps).then((analisis) => {
+      if (versiones.get(tab) === v) fijar(tab, { tipo: 'analisis', analisis })
+    })
+    enCurso.set(tab, { id: anuncio.id, promesa })
+    void promesa.finally(() => {
+      if (enCurso.get(tab)?.promesa === promesa) enCurso.delete(tab)
+    })
+    return promesa
+  }
+
+  async function anuncioDe(tab: number): Promise<Anuncio | undefined> {
+    return anuncios.get(tab) ?? (await deps.sesion.leer(tab))
   }
 
   return {
@@ -58,7 +76,9 @@ export function crearControlador(deps: DepsControlador) {
     },
 
     async olvidar(tab: number) {
+      nuevaVersion(tab)
       anuncios.delete(tab)
+      enCurso.delete(tab)
       await deps.sesion.borrar(tab)
       fijar(tab, NO_SOPORTADO)
     },
@@ -68,25 +88,36 @@ export function crearControlador(deps: DepsControlador) {
       if (e) return e
       const anuncio = await deps.sesion.leer(tab)
       if (!anuncio) return NO_SOPORTADO
-      enSegundoPlano(analizarTab(tab, anuncio))
+      void analizarTab(tab, anuncio)
       return { tipo: 'cargando' }
     },
 
-    /** Para tests: espera a los análisis en curso. */
+    /** Espera a los análisis en curso. */
     async inactivo() {
-      await Promise.all(pendientes)
+      await Promise.all([...enCurso.values()].map((x) => x.promesa))
     },
 
-    async confirmar(tab: number, rc: string): Promise<boolean> {
-      const anuncio = anuncios.get(tab)
-      if (!anuncio || !(await guardarSeleccion(deps.almacen, anuncio.id, rc))) return false
-      await analizarTab(tab, anuncio)
-      return true
+    async confirmar(tab: number, rc: string): Promise<ResultadoConfirmar> {
+      const anuncio = await anuncioDe(tab)
+      if (!anuncio) return 'sinAnuncio'
+      if (!(await guardarSeleccion(deps.almacen, anuncio.id, rc))) return 'rcInvalida'
+      await analizarTab(tab, anuncio, true)
+      return 'ok'
     },
 
-    async buscarNumeros(tab: number, via: string, numero: string): Promise<Resultado<NumeroVia[]>> {
-      const { provincia, municipio } = anuncios.get(tab) ?? {}
-      if (!provincia || !municipio) return sinDatos
+    async buscarNumeros(
+      tab: number,
+      via: string,
+      numero: string,
+    ): Promise<RespuestaAccion<NumeroVia[]>> {
+      const anuncio = await anuncioDe(tab)
+      if (!anuncio) return SIN_ANUNCIO
+      const { provincia, municipio } = anuncio
+      if (!provincia || !municipio)
+        return {
+          ok: false,
+          error: { tipo: 'sinResultados', mensaje: 'Faltan provincia o municipio' },
+        }
       return deps.catastro.buscarNumeros({
         provincia,
         municipio,
@@ -95,9 +126,9 @@ export function crearControlador(deps: DepsControlador) {
       })
     },
 
-    async inmueblesParcela(tab: number, pc: string): Promise<Resultado<Candidato[]>> {
-      const anuncio = anuncios.get(tab)
-      if (!anuncio) return sinDatos
+    async inmueblesParcela(tab: number, pc: string): Promise<RespuestaAccion<Candidato[]>> {
+      const anuncio = await anuncioDe(tab)
+      if (!anuncio) return SIN_ANUNCIO
       const r = await deps.catastro.buscarPorReferencia(pc)
       return r.ok ? { ok: true, valor: ordenarCandidatos(anuncio, r.valor) } : r
     },

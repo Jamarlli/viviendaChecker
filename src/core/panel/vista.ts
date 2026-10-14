@@ -14,6 +14,7 @@ import type {
   TipoAlerta,
 } from '../tipos'
 import type { Analisis } from './analisis'
+import type { ResultadoConfirmar } from './controlador'
 
 export const MAX_CANDIDATOS = 10
 
@@ -50,8 +51,12 @@ const CONFIANZA: Record<Confianza, string> = {
   ninguna: 'Sin coincidencias',
 }
 
-export function mensajeError(e: ErrorCatastro): string {
+const SIN_ANUNCIO = 'No hay datos del anuncio. Recarga la página del anuncio.'
+
+export function mensajeError(e: ErrorCatastro | { tipo: 'sinAnuncio' }): string {
   switch (e.tipo) {
+    case 'sinAnuncio':
+      return SIN_ANUNCIO
     case 'noSoportado':
       return 'El País Vasco y Navarra tienen catastro propio y aún no están soportados.'
     case 'red':
@@ -61,6 +66,14 @@ export function mensajeError(e: ErrorCatastro): string {
     case 'sinResultados':
       return 'El Catastro no encontró nada.'
   }
+}
+
+/** `undefined` como resultado: el background no respondió. */
+export function mensajeConfirmar(r: ResultadoConfirmar | undefined): string | undefined {
+  if (r === 'ok') return undefined
+  if (r === 'rcInvalida') return 'La referencia catastral debe tener 20 letras o números.'
+  if (r === 'sinAnuncio') return SIN_ANUNCIO
+  return 'No se pudo guardar la elección. Inténtalo de nuevo.'
 }
 
 export interface FilaCandidato {

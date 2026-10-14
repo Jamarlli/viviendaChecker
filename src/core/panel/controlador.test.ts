@@ -81,17 +81,21 @@ describe('controlador del panel', () => {
   it('confirmar guarda la RC y reanaliza como manual', async () => {
     const m = montar({ ...conBueno, referencia: () => ({ ok: true, valor: [BUENO] }) })
     await m.c.recibirAnuncio(1, anuncio())
-    expect(await m.c.confirmar(1, RC.toLowerCase())).toBe(true)
+    expect(await m.c.confirmar(1, RC.toLowerCase())).toBe('ok')
     expect(m.guardado['42']).toEqual({ rc: RC })
     const e = await m.c.estado(1)
     expect(e.tipo === 'analisis' && e.analisis.emparejamiento?.origen).toBe('manual')
   })
 
-  it('confirmar RC no válida → false, no guarda', async () => {
+  it('confirmar RC no válida → rcInvalida, no guarda', async () => {
     const m = montar(conBueno)
     await m.c.recibirAnuncio(1, anuncio())
-    expect(await m.c.confirmar(1, '123')).toBe(false)
+    expect(await m.c.confirmar(1, '123')).toBe('rcInvalida')
     expect(m.guardado).toEqual({})
+  })
+
+  it('confirmar sin anuncio conocido → sinAnuncio', async () => {
+    expect(await montar().c.confirmar(9, RC)).toBe('sinAnuncio')
   })
 
   it('buscarNumeros usa provincia y municipio del anuncio', async () => {
@@ -121,5 +125,52 @@ describe('controlador del panel', () => {
     await m.c.recibirAnuncio(1, anuncio())
     const r = await m.c.inmueblesParcela(1, '1111111VK1111A')
     expect(r.ok && r.valor.map((c) => c.inmueble.rc)).toEqual([RC, malo.rc])
+  })
+
+  describe('con el service worker recién despertado (solo sesión)', () => {
+    const SESION = { 1: anuncio() }
+
+    it('confirmar recupera el anuncio de la sesión', async () => {
+      const m = montar({ referencia: () => ({ ok: true, valor: [BUENO] }) }, SESION)
+      expect(await m.c.confirmar(1, RC)).toBe('ok')
+      expect(m.guardado['42']).toEqual({ rc: RC })
+      const e = await m.c.estado(1)
+      expect(e.tipo === 'analisis' && e.analisis.emparejamiento?.origen).toBe('manual')
+    })
+
+    it('buscarNumeros recupera el anuncio de la sesión', async () => {
+      const m = montar({ numeros: { ok: true, valor: [] } }, SESION)
+      await m.c.buscarNumeros(1, 'Calle Mayor', '1')
+      expect(m.f.llamadas.find((l) => l.op === 'numeros')?.arg).toMatchObject({
+        provincia: 'Madrid',
+        municipio: 'Madrid',
+      })
+    })
+
+    it('inmueblesParcela recupera el anuncio de la sesión', async () => {
+      const m = montar({ referencia: () => ({ ok: true, valor: [BUENO] }) }, SESION)
+      const r = await m.c.inmueblesParcela(1, '1111111VK1111A')
+      expect(r.ok && r.valor.map((c) => c.inmueble.rc)).toEqual([RC])
+    })
+
+    it('sin anuncio en sesión → sinAnuncio', async () => {
+      const m = montar()
+      expect(await m.c.buscarNumeros(1, 'Calle Mayor', '1')).toEqual({
+        ok: false,
+        error: { tipo: 'sinAnuncio' },
+      })
+      expect(await m.c.inmueblesParcela(1, 'X')).toEqual({
+        ok: false,
+        error: { tipo: 'sinAnuncio' },
+      })
+    })
+  })
+
+  it('análisis concurrentes de la misma pestaña se deduplican', async () => {
+    const m = montar(conBueno, { 3: anuncio() })
+    await Promise.all([m.c.estado(3), m.c.estado(3)])
+    await Promise.all([m.c.recibirAnuncio(3, anuncio()), m.c.recibirAnuncio(3, anuncio())])
+    await m.c.inactivo()
+    expect(m.f.llamadas.filter((l) => l.op === 'direccion')).toHaveLength(1)
   })
 })

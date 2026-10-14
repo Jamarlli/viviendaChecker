@@ -5,6 +5,7 @@ import type { MensajeAlFondo, MensajeAlPanel, RespuestaDe } from '../../core/pan
 import {
   enlaces,
   etiquetaInmueble,
+  mensajeConfirmar,
   mensajeError,
   NOMBRE_CAMPO,
   NOMBRE_CONCEPTO,
@@ -31,28 +32,78 @@ function boton(texto: string, accion: () => void, clase = ''): HTMLElement {
   return b
 }
 
-function enviar<T extends MensajeAlFondo>(m: T): Promise<RespuestaDe[T['tipo']]> {
-  return browser.runtime.sendMessage(m)
+/** `undefined` si el background no responde. */
+async function enviar<T extends MensajeAlFondo>(m: T): Promise<RespuestaDe[T['tipo']] | undefined> {
+  try {
+    return await browser.runtime.sendMessage(m)
+  } catch (e) {
+    console.error(e)
+    return undefined
+  }
 }
 
+const SIN_RESPUESTA = 'No se pudo contactar con la extensión. Inténtalo de nuevo.'
+
 const app = document.getElementById('app') ?? document.body
+const linea = h('p', { class: 'linea', role: 'status' })
+const contenido = h('div')
+app.replaceChildren(linea, contenido)
+
 let tabActual: number | undefined
+let mostrandoAnalisis = false
+// Sobreviven al repintado: <details> abiertos y elemento con foco (por `data-clave`).
+const abiertos = new Set<string>()
+let focoPendiente: string | undefined
+
+app.addEventListener(
+  'toggle',
+  (e) => {
+    const d = e.target as HTMLDetailsElement
+    const clave = d.dataset.clave
+    if (!clave) return
+    if (d.open) abiertos.add(clave)
+    else abiertos.delete(clave)
+  },
+  true,
+)
 
 function pintar(...hijos: Hijo[]) {
-  app.replaceChildren(...hijos.filter((c): c is Node | string => !!c))
+  const activo = document.activeElement
+  const clave =
+    focoPendiente ??
+    (activo instanceof HTMLElement && contenido.contains(activo) ? activo.dataset.clave : undefined)
+  focoPendiente = undefined
+  contenido.replaceChildren(...hijos.filter((c): c is Node | string => !!c))
+  for (const d of contenido.querySelectorAll<HTMLDetailsElement>('details[data-clave]'))
+    d.open = abiertos.has(d.dataset.clave ?? '')
+  if (clave) contenido.querySelector<HTMLElement>(`[data-clave="${clave}"]`)?.focus()
 }
 
 function render(estado: EstadoPanel) {
+  app.setAttribute('aria-busy', String(estado.tipo === 'cargando'))
+  if (estado.tipo === 'cargando') {
+    // Se conserva el análisis anterior (y su foco) mientras se rehace.
+    linea.textContent = 'Consultando el Catastro…'
+    if (!mostrandoAnalisis) pintar()
+    return
+  }
+  linea.textContent = ''
+  mostrandoAnalisis = estado.tipo === 'analisis'
   if (estado.tipo === 'noSoportado')
     return pintar(h('p', { class: 'vacio' }, 'Abre un anuncio de Idealista para analizarlo.'))
-  if (estado.tipo === 'cargando')
-    return pintar(h('p', { class: 'vacio', role: 'status' }, 'Consultando el Catastro…'))
   const a = estado.analisis
-  pintar(seccionInmueble(a), seccionDiscrepancias(a), seccionAlertas(a), seccionGastos(a))
+  pintar(
+    seccionInmueble(a),
+    seccionDiscrepancias(a),
+    seccionAlertas(a),
+    seccionGastos(a),
+    seccionPasos(a),
+  )
 }
 
 function seccion(titulo: string, ...hijos: Hijo[]): HTMLElement {
-  return h('section', {}, h('h2', {}, titulo), ...hijos)
+  const clave = titulo.toLowerCase()
+  return h('section', {}, h('h2', { tabindex: '-1', 'data-clave': clave }, titulo), ...hijos)
 }
 
 const fuente = (texto: string) => h('p', { class: 'fuente' }, `Fuente: ${texto}`)
@@ -95,24 +146,32 @@ function seccionInmueble(a: Analisis): HTMLElement {
               'li',
               {},
               h('span', {}, c.etiqueta, h('small', {}, ` · coincide ${c.coincidencia}`)),
-              boton('Es este', () => confirmar(c.rc)),
+              boton('Es este', () => void confirmar(c.rc, errorInmueble)),
             ),
           ),
         ),
       )
     }
-    contenido.push(
-      h(
-        'ul',
-        { class: 'enlaces' },
-        ...enlaces(v.rc).map((e) =>
-          h('li', {}, h('a', { href: e.url, target: '_blank', rel: 'noopener' }, e.texto)),
-        ),
-      ),
-    )
   }
+  const errorInmueble = h('p', { class: 'aviso', role: 'alert' })
+  contenido.push(errorInmueble)
   if (tabActual !== undefined) contenido.push(busqueda(a, tabActual), pegarRc())
   return seccion('Inmueble', ...contenido)
+}
+
+function seccionPasos(a: Analisis): Hijo {
+  const rc = a.emparejamiento?.candidatos[0]?.inmueble.rc
+  if (!rc) return false
+  return seccion(
+    'Siguientes pasos',
+    h(
+      'ul',
+      { class: 'enlaces' },
+      ...enlaces(rc).map((e) =>
+        h('li', {}, h('a', { href: e.url, target: '_blank', rel: 'noopener' }, e.texto)),
+      ),
+    ),
+  )
 }
 
 function campo(etiqueta: string, input: HTMLInputElement): HTMLElement {
@@ -131,10 +190,12 @@ function busqueda(a: Analisis, tab: number): Hijo {
   const via = entrada(direccion?.via, { autocomplete: 'off' })
   const numero = entrada(direccion?.numero, { inputmode: 'numeric', size: '5' })
   const resultado = h('div', { 'aria-live': 'polite' })
+  const error = h('p', { class: 'aviso', role: 'alert' })
 
   async function buscar() {
     resultado.replaceChildren(h('p', { role: 'status' }, 'Buscando…'))
     const r = await enviar({ tipo: 'buscarNumeros', tab, via: via.value, numero: numero.value })
+    if (!r) return resultado.replaceChildren(h('p', { class: 'aviso' }, SIN_RESPUESTA))
     if (!r.ok)
       return resultado.replaceChildren(
         h(
@@ -158,6 +219,7 @@ function busqueda(a: Analisis, tab: number): Hijo {
   async function inmuebles(pc: string, num: string) {
     resultado.replaceChildren(h('p', { role: 'status' }, 'Buscando…'))
     const r = await enviar({ tipo: 'inmueblesParcela', tab, pc })
+    if (!r) return resultado.replaceChildren(h('p', { class: 'aviso' }, SIN_RESPUESTA))
     if (!r.ok) return resultado.replaceChildren(h('p', {}, mensajeError(r.error)))
     resultado.replaceChildren(
       h('p', {}, `Número ${num}: elige planta y puerta.`),
@@ -169,7 +231,7 @@ function busqueda(a: Analisis, tab: number): Hijo {
             'li',
             {},
             h('span', {}, etiquetaInmueble(c.inmueble)),
-            boton('Es este', () => confirmar(c.inmueble.rc)),
+            boton('Es este', () => void confirmar(c.inmueble.rc, error)),
           ),
         ),
       ),
@@ -187,12 +249,19 @@ function busqueda(a: Analisis, tab: number): Hijo {
     e.preventDefault()
     void buscar()
   })
-  return h('details', {}, h('summary', {}, 'Buscar por calle y número'), form, resultado)
+  return h(
+    'details',
+    { 'data-clave': 'busqueda' },
+    h('summary', {}, 'Buscar por calle y número'),
+    form,
+    resultado,
+    error,
+  )
 }
 
 function pegarRc(): HTMLElement {
   const rc = entrada('', { autocomplete: 'off', maxlength: '24', spellcheck: 'false' })
-  const aviso = h('p', { 'aria-live': 'polite' })
+  const aviso = h('p', { class: 'aviso', role: 'alert' })
   const form = h(
     'form',
     { class: 'fila' },
@@ -201,14 +270,28 @@ function pegarRc(): HTMLElement {
   )
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
-    if (!(await confirmar(rc.value))) aviso.textContent = 'La RC debe tener 20 letras o números.'
+    void confirmar(rc.value, aviso)
   })
-  return h('details', {}, h('summary', {}, 'Pegar referencia catastral'), form, aviso)
+  return h(
+    'details',
+    { 'data-clave': 'pegarRc' },
+    h('summary', {}, 'Pegar referencia catastral'),
+    form,
+    aviso,
+  )
 }
 
-async function confirmar(rc: string): Promise<boolean> {
-  if (tabActual === undefined) return false
-  return enviar({ tipo: 'confirmar', tab: tabActual, rc })
+/** Muestra en `aviso` por qué no se pudo; si se pudo, el foco va al inmueble repintado. */
+async function confirmar(rc: string, aviso: HTMLElement) {
+  aviso.textContent = ''
+  // Antes de enviar: el nuevo estado puede llegar antes que la respuesta.
+  focoPendiente = 'inmueble'
+  const r =
+    tabActual === undefined ? 'sinAnuncio' : await enviar({ tipo: 'confirmar', tab: tabActual, rc })
+  const mensaje = mensajeConfirmar(r)
+  if (!mensaje) return
+  focoPendiente = undefined
+  aviso.textContent = mensaje
 }
 
 function seccionDiscrepancias(a: Analisis): Hijo {
@@ -292,8 +375,11 @@ function seccionGastos(a: Analisis): Hijo {
 async function cambiarTab(tab: number | undefined) {
   tabActual = tab
   if (tab === undefined) return render({ tipo: 'noSoportado' })
+  mostrandoAnalisis = false
   const estado = await enviar({ tipo: 'pedirEstado', tab })
-  if (tab === tabActual) render(estado)
+  if (tab !== tabActual) return
+  if (estado) render(estado)
+  else pintar(h('p', { class: 'aviso', role: 'alert' }, SIN_RESPUESTA))
 }
 
 browser.runtime.onMessage.addListener((m: MensajeAlPanel) => {
