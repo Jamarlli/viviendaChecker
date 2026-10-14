@@ -1,0 +1,44 @@
+# 02 · Emparejamiento con Catastro
+
+Dado un `Anuncio`, encuentra los inmuebles catastrales candidatos y su confianza.
+
+## Modelo
+```ts
+Inmueble { rc: string; uso: string; m2: number; anio: number; planta: string; puerta: string; direccion: string }
+Candidato { inmueble: Inmueble; puntuacion: number /* 0-1 */ }
+Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' | 'ninguna'; origen: 'direccion' | 'coords' | 'manual' }
+```
+
+## Flujo
+1. Parcelas: con vía + número → `DNPLOC`; si no, con coords → `RCCOOR_Distancia`; si no → `ninguna`.
+2. Inmuebles de cada parcela → `DNPRC`.
+3. Puntuar cada inmueble y ordenar.
+
+## Puntuación
+| Señal | Peso |
+|---|---|
+| Superficie construida (o útil × 1,2) dentro de ±15 % | 0,45 |
+| Planta coincide | 0,30 |
+| Año ±2 | 0,15 |
+| Uso residencial | 0,10 |
+
+Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre los pesos disponibles).
+
+## Confianza
+- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º.
+- `media`: 1.º ≥ 0,6.
+- `baja`: resto.
+- `ninguna`: sin candidatos.
+
+## Criterios
+- [ ] Con dirección exacta y datos completos → `alta` y RC correcta (fixtures).
+- [ ] Sin número pero con coords → candidatos de parcelas cercanas.
+- [ ] Coords aproximadas → nunca `alta`.
+- [ ] Inmuebles no residenciales se puntúan, no se descartan (para detectar "local como vivienda").
+- [ ] El usuario puede elegir otro candidato o pegar una RC; se guarda por id de anuncio y tiene prioridad (`origen: 'manual'`).
+- [ ] Error o caída del Catastro → mensaje claro, sin romper el panel.
+- [ ] Provincias forales → "no soportado".
+
+## Dudas
+- Pesos y umbrales iniciales; se ajustan con 20+ anuncios reales.
+- `sfc` del Catastro incluye zonas comunes; validar con fixtures.
