@@ -1,0 +1,23 @@
+{
+  "portal": "idealista",
+  "id": "111955729",
+  "url": "https://www.idealista.com/inmueble/111955729/",
+  "precio": 1495000,
+  "tipo": "piso",
+  "obraNueva": false,
+  "direccion": {
+    "via": "Calle de Fernán González"
+  },
+  "municipio": "Madrid",
+  "provincia": "Madrid",
+  "coords": {
+    "lat": 40.4216439,
+    "lon": -3.6748715,
+    "aproximada": true
+  },
+  "planta": "5",
+  "m2Construidos": 114,
+  "descripcion": "Exclusiva vivienda a escasos minutos del Parque del Retiro, completamente reformada lista para entrar a vivir. \n\nUbicada en una quinta planta exterior, esta magnífica propiedad destaca por su extraordinaria luminosidad, gracias a su altura y a la excelente orientación de todas sus estancias. Con una superficie de 114 m², ofrece una distribución impecable, diseñada para maximizar el confort y la funcionalidad. \n\nLa zona de día cuenta con un amplio y elegante salón-comedor, que disfruta de una magnifica luz natural, con acceso a una agradable terraza exterior. La cocina, de diseño contemporáneo, destaca por su funcional distribución con península, su amplia capacidad de almacenaje y la calidad de sus acabados. Se entrega completamente amueblada y equipada, lista para entrar a vivir desde el primer día.\n\nLa zona de descanso se compone de tres amplios dormitorios dobles, todos ellos con excelentes dimensiones y abundantes armarios empotrados que garantizan una óptima capacidad de almacenamiento. El dormitorio principal dispone de baño en suite. La vivienda se completa con un segundo baño completo, igualmente diseñado con materiales y acabados de alta gama.\n\nUno de los aspectos más destacados de esta propiedad son sus techos altos, que aportan una mayor sensación de amplitud, elegancia y luminosidad.\n\nLa reforma integral ha sido concebida con una atención excepcional al detalle, incorporando una selección de materiales nobles, carpinterías de alta gama, un estudiado proyecto de iluminación y soluciones de diseño que combinan elegancia, funcionalidad y el máximo confort\n\nLa vivienda se encuentra en un edificio representativo con servicio de portero físico.\n\nSu privilegiada ubicación, en pleno barrio de Goya y a pocos pasos del Parque del Retiro, permite disfrutar de una de las mejores zonas residenciales de Madrid, rodeada de boutiques, restaurantes, comercios, colegios, excelentes comunicaciones y todos los servicios necesarios, combinando la tranquilidad de un entorno residencial con la comodidad de vivir en el corazón de la ciudad.\n\nUna vivienda única, lista para entrar a vivir, ideal para quienes buscan diseño, amplitud, luminosidad y una ubicación excepcional en una de las direcciones. Una propiedad que, además de ofrecer una excelente calidad de vida, representa una magnífica oportunidad de inversión, con un elevado potencial de revalorización y una alta rentabilidad.",
+  "mencionaTrastero": false,
+  "mencionaGaraje": false
+}

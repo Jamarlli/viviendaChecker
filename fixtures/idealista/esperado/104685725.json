@@ -1,0 +1,25 @@
+{
+  "portal": "idealista",
+  "id": "104685725",
+  "url": "https://www.idealista.com/inmueble/104685725/",
+  "precio": 2012000,
+  "tipo": "atico",
+  "obraNueva": true,
+  "direccion": {
+    "via": "Calle de Mesena",
+    "numero": "80"
+  },
+  "municipio": "Madrid",
+  "provincia": "Madrid",
+  "coords": {
+    "lat": 40.4660328,
+    "lon": -3.6628069,
+    "aproximada": false
+  },
+  "planta": "7",
+  "m2Construidos": 318,
+  "m2Utiles": 126,
+  "descripcion": "¡Áticos con vistas únicas de Madrid en construcción!\nMesena 80 es un proyecto de viviendas premium en una de las zonas más privilegiadas de Madrid, muy próximo a Arturo Soria. Consta de 96 magníficas viviendas de 1,2, 3 y 4 dormitorios distribuidas en dos edificios de vanguardia y cuidado diseño. Situada en un entorno urbano consolidado y con una inmejorable situación dada su cercanía a centros escolares, asistenciales y comerciales. Está dotada de excelentes servicios comunes como piscina exterior, piscina interior climatizada, gimnasio, salón social, zona de juegos infantiles y zonas de descanso rodeado de zonas verdes en un entorno privado totalmente cerrado.\nSon edificios de 7 plantas con impresionantes áticos con terraza y magníficas vistas.\nAdaptadas a las nuevas necesidades que exige el mercado actual, las viviendas contarán con grandes terrazas, plazas de garaje y trastero. Los salones cuentan con grandes ventanales para crear ambientes agradables y luminosos y generosas terrazas para disfrutar de unas vistas despejadas.\nLos cuidados interiores se mezclan con la vanguardia y el diseño de sus zonas comunes.\nLas viviendas diseñadas por el arquitecto Carlos Lamela utilizan elegantes materiales, en consonancia con su moderno estilo. Aúnan un óptimo mantenimiento y durabilidad con altas prestaciones de confort térmico y acústico: máxima calificación de eficiencia energética Nivel A, certificado BREEAM, suelo radiante refrescante, excelentes aislamientos termo-acústicos, doble orientación, recuperador de calor, geotermia, cocinas y armarios totalmente equipados ¡Y mucho más!",
+  "mencionaTrastero": true,
+  "mencionaGaraje": true
+}
