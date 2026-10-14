@@ -1,0 +1,22 @@
+{
+  "portal": "idealista",
+  "id": "38041203",
+  "url": "https://www.idealista.com/inmueble/38041203/",
+  "precio": 4750000,
+  "tipo": "casa",
+  "obraNueva": false,
+  "direccion": {
+    "via": "Calle de la Virgen de los Rosales"
+  },
+  "municipio": "Madrid",
+  "provincia": "Madrid",
+  "coords": {
+    "lat": 40.4528721,
+    "lon": -3.7818269,
+    "aproximada": true
+  },
+  "m2Construidos": 775,
+  "descripcion": "Chalet independiente de 700 m² con una parcela de 1.500 m² en la zona de Diplomáticos, Aravaca. Totalmente reformado e impecable. Con piscina y jardín privado. En ubicación inmejorable por su cercanía a colegio de prestigio, a escasos minutos andando del pueblo rodeado de servicios, bien comunicado por transporte público y con fácil acceso a carreteras principales. Distribución:\n\nPLANTA PRINCIPAL:\n-Hall de entrada. Armario gabanero. Aseo de cortesía. Salón-comedor con amplios ventanales y salida al porche, al jardín con piscina independiente. Zona de estar-biblioteca. Cocina-office con salida al jardín. Comedor de diario. Dormitorio y baño de servicio. Bajada desde la cocina a una zona de estar diáfana y cuarto de lavado. Dormitorio principal con baño en suite y amplio vestidor. Dormitorio con baño en suite.\n\nPLANTA SUPERIOR:\n-En la planta de arriba hay dos apartamentos independientes que se componen: de zona de estar, un amplio dormitorio con vestidor y baño en suite, y dos dormitorios que comparten un baño. (uno de los dormitorios tiene vestidor). Terraza.\n\nGaraje descubierto para cuatro coches.\nCalefacción de gasoil.\nAire acondicionado. \nPuedes ver más inmuebles en nuestra página web.\n\nEntre el Monte del Pardo y la Casa de Campo, y a tan solo 9 kilómetros del centro de Madrid, Aravaca es un lugar privilegiado: ofrece todo lo que un ciudadano necesita en una gran urbe, y además está perfectamente comunicada con la capital gracias a la autopista A-6, la M-500, la M-503 (carretera de Castilla), M-30 y M-40.\nCuenta con múltiples instalaciones deportivas, tiendas, restaurantes, academias, institutos, así como con los colegios más prestigiosos de Madrid. Es un área con mucho encanto donde sus 23.000 habitantes disfrutan de las ventajas de vivir en una gran ciudad, y a su vez de la tranquilidad de estar en un pueblo donde pasear, ir de compras caminando, e incluso ir en bici hasta el centro de Madrid o Ciudad Universitaria a través de la Casa de Campo.",
+  "mencionaTrastero": false,
+  "mencionaGaraje": true
+}

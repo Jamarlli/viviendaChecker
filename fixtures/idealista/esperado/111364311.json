@@ -1,0 +1,24 @@
+{
+  "portal": "idealista",
+  "id": "111364311",
+  "url": "https://www.idealista.com/inmueble/111364311/",
+  "precio": 675000,
+  "tipo": "piso",
+  "obraNueva": false,
+  "direccion": {
+    "via": "Calle de San Andrés"
+  },
+  "municipio": "Madrid",
+  "provincia": "Madrid",
+  "coords": {
+    "lat": 40.4275559,
+    "lon": -3.7052068,
+    "aproximada": true
+  },
+  "planta": "3",
+  "m2Construidos": 80,
+  "anio": 1900,
+  "descripcion": "Vivienda en esquina con 5 balcones a la calle, orientación sur, planta alta, muy luminosa, y techos de mas de 3,5 metros de altura, en Malasaña, barrio de moda en Madrid, con muchas posibilidades de reforma\n\nTe presentamos una magnífica oportunidad en el corazón de Malasaña, el barrio más vibrante y en tendencia de Madrid. Este piso, situado en una planta alta, cuenta con **80 metros cuadrados construidos**, distribuidos en **3 habitaciones y 1 baño**, y destaca por su **luminosidad y orientación sur** gracias a sus **5 balcones a la calle**. La vivienda, ubicada en un edificio clásico de 1900 con ascensor, ofrece **vistas despejadas** y un sinfín de posibilidades de reforma. Con un diseño adecuado, podrías transformarlo en un moderno apartamento de **2 habitaciones y 2 baños**, maximizando así su funcionalidad y atractivo.\n\n Una ubicación privilegiada en Malasaña, el epicentro cultural de Madrid\n\nUbicada en el barrio de Trafalgar, dentro del distrito de Chamberí, esta vivienda se encuentra en una de las zonas más codiciadas de la capital. Malasaña es conocido por su ambiente bohemio, su oferta cultural y su amplia variedad de tiendas, cafeterías y restaurantes. Es el lugar ideal para quienes buscan disfrutar de un estilo de vida urbano y dinámico.\n\nEn cuanto a conexiones, la vivienda cuenta con un excelente acceso al transporte público. Las estaciones de metro más cercanas son **Tribunal (L1 y L10)** y **Bilbao (L1 y L4)**, ambas a pocos minutos a pie. También hay varias líneas de autobús en las inmediaciones que conectan con el resto de la ciudad, como las líneas **3, 147 y M2**, que operan en el área. Además, la estación de cercanías de **Recoletos** está a menos de 2 kilómetros, ofreciendo una conexión rápida con otros puntos de la Comunidad de Madrid.\n\n Una oportunidad para inversores y amantes de la reforma\n\nEste inmueble es perfecto tanto para quienes buscan su hogar ideal como para inversores interesados en una propiedad con gran potencial de rentabilidad. Su ubicación estratégica y la posibilidad de adaptar su distribución lo convierten en una opción única en el mercado.\n\n Sobre Inmobiliaria Ejemplo\n\nEn **Inmobiliaria Ejemplo**, llevamos desde [año] ayudando a nuestros clientes a encontrar la casa de sus sueños. Con más de 40 años de experiencia en el sector inmobiliario, nuestra prioridad es ofrecer un servicio personalizado, profesional y transparente. Nos enorgullece ser líderes en el mercado gracias a nuestra dedicación y compromiso.\n\n Contacto\n\nPara más información sobre esta vivienda, no dudes en ponerte en contacto con nuestro equipo especializado en la oficina de Chamberí Inmobiliaria Ejemplo, situada en **[dirección]**. Puedes llamarnos al **[teléfono]** o escribirnos a ****. Recuerda facilitarnos la referencia **[ref]** para poder atenderte de forma más rápida y eficiente.",
+  "mencionaTrastero": false,
+  "mencionaGaraje": false
+}
