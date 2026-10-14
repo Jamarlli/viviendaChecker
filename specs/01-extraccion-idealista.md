@@ -21,7 +21,7 @@ Anuncio {
 ```
 
 ## Criterios
-- [ ] URL `idealista.com/inmueble/{id}/` → se extrae; otras URLs → `null`.
+- [ ] URL `idealista.com/inmueble/{id}/` → se extrae; otras URLs → `null`. Las versiones en otros idiomas (`/en/`, `/ca/`…) también → `null`: el MVP solo soporta castellano.
 - [ ] Extrae cada campo presente; los ausentes quedan `undefined`, sin fallar.
 - [ ] Parsea "90 m² construidos, 75 m² útiles", "Planta 3ª exterior", "Bajo", "Construido en 1975".
 - [ ] Marca `coords.aproximada` cuando el portal indica ubicación aproximada.
@@ -36,7 +36,7 @@ Estudiado sobre 24 anuncios reales (oct. 2026): pisos, áticos, dúplex, estudio
 | `precio` | `div.info-data .info-data-price` ("990.000 €") | Respaldo: `idForm.buyingPrice` en el script `var config`. Con rebaja, el precio anterior va aparte en `.pricedown_price`: ignorarlo. |
 | `tipo` | Inicio de `.main-info__title-main` ("Ático en venta en …") | Piso → `piso`, Ático → `atico`, Dúplex → `duplex`, Estudio → `estudio`, Chalet…/Casa o chalet… → `casa`; resto → `otro`. `strong.typology` solo distingue piso/chalet. |
 | `obraNueva` | `.info-features` contiene "Obra nueva" o "Características básicas" contiene "Promoción de obra nueva" | |
-| `direccion` | Primer `li.header-map-list` de `#headerMap`, solo si la lista tiene 3 o más elementos (los 2 últimos son siempre municipio y "zona, provincia") y ese primero no empieza por "Barrio " ni "Distrito " | "Calle de Mesena, 80" → `{via, numero}`; sin coma-número → solo `via`. Formato libre ("CL Valle De La Orotava, 2"). |
+| `direccion` | Primer `li.header-map-list` de `#headerMap`, solo si la lista tiene 3 o más elementos (los 2 últimos son siempre municipio y "zona, provincia") y ese primero no empieza por "Barrio " ni "Distrito " | "Calle de Mesena, 80" → `{via, numero}`; sin coma-número (o ", s/n") → solo `via`. Formato libre ("CL Valle De La Orotava, 2"). |
 | `municipio` | Penúltimo `li.header-map-list` | Ojo: en urbanizaciones es la zona de Idealista, no el municipio ("La Moraleja", "Ciudalcampo"). |
 | `provincia` | Último `li.header-map-list`, tras la última coma ("Madrid capital, Madrid") | Nombre local ("València"). Código INE en `idForm.locationId` ("0-EU-ES-28"). |
 | `coords` | `config.multimediaCarrousel.map.src`: `staticmap?…&center={lat}%2C{lon}` | `mapConfig.latitude/longitude` llegan vacíos; no hay `data-` con coords. |
