@@ -36,3 +36,4 @@ Base: `https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/`
 - `COVCCallejero.svc/json/Consulta_DNPLOC?Provincia=&Municipio=&Sigla=&Calle=&Numero=`
 - `COVCCoordenadas.svc/json/Consulta_RCCOOR_Distancia?CoorX=<lon>&CoorY=<lat>&SRS=EPSG:4326`
 - `COVCCallejero.svc/json/Consulta_DNPRC?RefCat=<14 o 20 car.>`
+- `COVCCallejero.svc/json/ObtenerNumerero?Provincia=&Municipio=&TipoVia=&NomVia=&Numero=` (números cercanos)
