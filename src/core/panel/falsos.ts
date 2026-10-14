@@ -61,6 +61,10 @@ export function catastroFalso(r: Respuestas = {}) {
       llamadas.push({ op: 'direccion', arg: l })
       return r.direccion ?? vacio
     },
+    async parcelasEnRadio(c) {
+      llamadas.push({ op: 'radio', arg: c })
+      return vacio
+    },
     async buscarPorCoordenadas(c) {
       llamadas.push({ op: 'coordenadas', arg: c })
       return vacio

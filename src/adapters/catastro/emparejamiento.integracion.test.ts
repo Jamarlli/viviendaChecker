@@ -7,9 +7,15 @@ import { crearClienteCatastro } from './cliente'
 
 // Core + cliente real sobre respuestas grabadas del Catastro.
 
-const fixture = (nombre: string) => readFileSync(`fixtures/catastro/${nombre}.json`, 'utf8')
+const fixture = (nombre: string) =>
+  readFileSync(`fixtures/catastro/${nombre}${nombre.startsWith('wfs') ? '.xml' : '.json'}`, 'utf8')
 
-type Rutas = { dnploc?: string; rccoor?: string; dnprc?: (refCat: string) => string }
+type Rutas = {
+  dnploc?: string
+  wfs?: string
+  rccoor?: string
+  dnprc?: (refCat: string) => string
+}
 
 function catastroFalso(rutas: Rutas, { caido = false } = {}) {
   const urls: URL[] = []
@@ -21,9 +27,11 @@ function catastroFalso(rutas: Rutas, { caido = false } = {}) {
     const nombre =
       op === 'Consulta_DNPLOC'
         ? rutas.dnploc
-        : op === 'Consulta_RCCOOR_Distancia'
-          ? rutas.rccoor
-          : rutas.dnprc?.(url.searchParams.get('RefCat') ?? '')
+        : op === 'wfsCP.aspx'
+          ? (rutas.wfs ?? 'wfs-cp-error')
+          : op === 'Consulta_RCCOOR_Distancia'
+            ? rutas.rccoor
+            : rutas.dnprc?.(url.searchParams.get('RefCat') ?? '')
     return new Response(fixture(nombre ?? 'dnprc-error'))
   }
   return { catastro: crearClienteCatastro(fn as typeof fetch), urls }
@@ -96,14 +104,33 @@ describe('emparejamiento con el Catastro (fixtures)', () => {
     expect(r.ok && r.valor.candidatos).toHaveLength(1)
   })
 
-  it('coords: parcelas cercanas; las que fallan se descartan', async () => {
+  it('coords: parcelas a ≤ 250 m (WFS), la más cercana primero', async () => {
+    const c = catastroFalso({
+      wfs: 'wfs-cp-parcelas',
+      dnprc: (rc) => (rc === '0444101VK4704C' ? 'dnprc-parcela' : 'dnprc-error'),
+    })
+    const a = anuncio({ ...datos3CD, coords: { lat: 40.4168, lon: -3.70375, aproximada: true } })
+    const r = await emparejar(a, { catastro: c.catastro, almacen: sinSeleccion })
+    expect(c.urls.map((u) => u.searchParams.get('RefCat') ?? 'wfs')).toEqual([
+      'wfs',
+      '0444101VK4704C',
+      ...c.urls.slice(2).map((u) => u.searchParams.get('RefCat')),
+    ])
+    expect(c.urls).toHaveLength(18)
+    if (!r.ok) throw new Error()
+    expect(r.valor.origen).toBe('coords')
+    expect(r.valor.candidatos[0]?.inmueble.rc).toBe(RC_3CD)
+    expect(r.valor.confianza).toBe('media')
+  })
+
+  it('coords con WFS caído: RCCOOR; las parcelas que fallan se descartan', async () => {
     const c = catastroFalso({
       rccoor: 'rccoor-varias',
       dnprc: (rc) => (rc === '0342202VK4704A' ? 'dnprc-rc-invalida' : dnprcParcela(rc)),
     })
     const a = anuncio({ ...datos3CD, coords: { ...centro, aproximada: false } })
     const r = await emparejar(a, { catastro: c.catastro, almacen: sinSeleccion })
-    expect(c.urls).toHaveLength(11)
+    expect(c.urls).toHaveLength(12)
     if (!r.ok) throw new Error()
     expect(r.valor.origen).toBe('coords')
     expect(r.valor.candidatos[0]?.inmueble.rc).toBe(RC_3CD)

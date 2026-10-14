@@ -37,3 +37,4 @@ Base: `https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/`
 - `COVCCoordenadas.svc/json/Consulta_RCCOOR_Distancia?CoorX=<lon>&CoorY=<lat>&SRS=EPSG:4326`
 - `COVCCallejero.svc/json/Consulta_DNPRC?RefCat=<14 o 20 car.>`
 - `COVCCallejero.svc/json/ObtenerNumerero?Provincia=&Municipio=&TipoVia=&NomVia=&Numero=` (números cercanos)
+- WFS INSPIRE parcelas (GML): `https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx?service=WFS&version=2.0.0&request=GetFeature&typeNames=cp:CadastralParcel&srsName=EPSG::4326&bbox=<latMin>,<lonMin>,<latMax>,<lonMax>`

@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--Parcela Catastral de la D.G. del Catastro.-->
+<!--La precisión es la que corresponde nominalmente a la escala de captura de la cartografía-->
+<FeatureCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:cp="http://inspire.ec.europa.eu/schemas/cp/4.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://inspire.ec.europa.eu/schemas/cp/4.0 http://inspire.ec.europa.eu/schemas/cp/4.0/CadastralParcels.xsd" xmlns="http://www.opengis.net/wfs/2.0" timeStamp="2026-10-14T14:43:39" numberMatched="17" numberReturned="17">
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0245503VK4704E">
+      <cp:areaValue uom="m2">5316</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0245503VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0245503VK4704E.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="46">40.418124 -3.705089 40.41811 -3.705059 40.41809 -3.705013 40.418088 -3.705009 40.418059 -3.704945 40.418043 -3.704909 40.418038 -3.704897 40.418027 -3.704875 40.418008 -3.70488 40.417938 -3.704895 40.417855 -3.704913 40.417804 -3.704917 40.4178 -3.704838 40.417799 -3.704809 40.417797 -3.704769 40.417806 -3.704746 40.417808 -3.70474 40.417834 -3.704672 40.417843 -3.704648 40.417849 -3.704634 40.41745 -3.704368 40.417389 -3.70433 40.417357 -3.704415 40.417345 -3.704407 40.417273 -3.704586 40.417266 -3.704613 40.417264 -3.704632 40.417262 -3.704648 40.417262 -3.70466 40.417263 -3.704679 40.417265 -3.704695 40.417268 -3.704711 40.417376 -3.705233 40.417387 -3.705319 40.417401 -3.705312 40.417418 -3.705305 40.417525 -3.705257 40.417597 -3.705227 40.417691 -3.705498 40.417707 -3.705547 40.417777 -3.705506 40.417762 -3.705462 40.418098 -3.705261 40.418056 -3.705143 40.418092 -3.705115 40.418124 -3.705089</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0245503VK4704E</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>03</cp:label>
+      <cp:nationalCadastralReference>0245503VK4704E</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0245503VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417644 -3.704942</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0245707VK4704C">
+      <cp:areaValue uom="m2">636</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0245707VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0245707VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="33">40.417192 -3.704557 40.41715 -3.704529 40.417141 -3.704523 40.417112 -3.704504 40.417085 -3.704486 40.417044 -3.704459 40.416991 -3.704425 40.416988 -3.704423 40.416946 -3.704396 40.416919 -3.70469 40.416917 -3.704718 40.416917 -3.704746 40.416919 -3.704774 40.416923 -3.704809 40.416956 -3.70479 40.416959 -3.704788 40.417043 -3.704742 40.417066 -3.704729 40.417096 -3.704716 40.417106 -3.704712 40.417111 -3.704709 40.417138 -3.704699 40.417134 -3.704684 40.417155 -3.704679 40.417175 -3.704673 40.417173 -3.704657 40.417172 -3.704644 40.417173 -3.704622 40.417175 -3.704608 40.417179 -3.704588 40.417182 -3.704576 40.417188 -3.704563 40.417192 -3.704557</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0245707VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>07</cp:label>
+      <cp:nationalCadastralReference>0245707VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0245707VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.41703 -3.704607</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0245708VK4704C">
+      <cp:areaValue uom="m2">741</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0245708VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0245708VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="19">40.417225 -3.704223 40.417114 -3.704151 40.417095 -3.704138 40.417066 -3.7042 40.417046 -3.704239 40.417024 -3.704277 40.416987 -3.704338 40.416946 -3.704396 40.416988 -3.704423 40.416991 -3.704425 40.417044 -3.704459 40.417085 -3.704486 40.417112 -3.704504 40.417141 -3.704523 40.41715 -3.704529 40.417192 -3.704557 40.417291 -3.704307 40.417278 -3.704257 40.417225 -3.704223</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0245708VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>08</cp:label>
+      <cp:nationalCadastralReference>0245708VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0245708VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417134 -3.704347</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0343302VK4704C">
+      <cp:areaValue uom="m2">1179</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0343302VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0343302VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="23">40.416468 -3.704807 40.416492 -3.704547 40.416345 -3.704526 40.416345 -3.704521 40.41633 -3.704519 40.416319 -3.704518 40.416267 -3.704511 40.416242 -3.704507 40.416173 -3.704497 40.416173 -3.704501 40.416045 -3.704482 40.416041 -3.704526 40.416043 -3.704526 40.416038 -3.704581 40.416028 -3.704687 40.416025 -3.704687 40.416016 -3.704773 40.416068 -3.704776 40.416134 -3.704782 40.416185 -3.704786 40.416243 -3.70479 40.416321 -3.704795 40.416468 -3.704807</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0343302VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>02</cp:label>
+      <cp:nationalCadastralReference>0343302VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0343302VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416252 -3.704651</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0343303VK4704C">
+      <cp:areaValue uom="m2">507</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0343303VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0343303VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="11">40.416492 -3.704547 40.416513 -3.704323 40.416274 -3.704285 40.416257 -3.704465 40.41627 -3.704467 40.416267 -3.704511 40.416319 -3.704518 40.41633 -3.704519 40.416345 -3.704521 40.416345 -3.704526 40.416492 -3.704547</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0343303VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>03</cp:label>
+      <cp:nationalCadastralReference>0343303VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0343303VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416384 -3.704415</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0343304VK4704C">
+      <cp:areaValue uom="m2">456</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0343304VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0343304VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="11">40.416267 -3.704511 40.41627 -3.704467 40.416257 -3.704465 40.416274 -3.704285 40.416167 -3.704268 40.416065 -3.704252 40.416045 -3.704482 40.416173 -3.704501 40.416173 -3.704497 40.416242 -3.704507 40.416267 -3.704511</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0343304VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>04</cp:label>
+      <cp:nationalCadastralReference>0343304VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0343304VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.41616 -3.704383</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0345701VK4704E">
+      <cp:areaValue uom="m2">991</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0345701VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0345701VK4704E.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="24">40.417332 -3.704116 40.417372 -3.704099 40.417504 -3.703756 40.417486 -3.703709 40.417233 -3.703644 40.417232 -3.703645 40.41723 -3.703646 40.417229 -3.703648 40.417228 -3.70365 40.417215 -3.703749 40.4172 -3.703819 40.417192 -3.703857 40.417184 -3.703888 40.417176 -3.703912 40.417153 -3.703979 40.417151 -3.703981 40.41715 -3.703983 40.41715 -3.703986 40.417149 -3.703988 40.417149 -3.70399 40.41715 -3.703993 40.417151 -3.703995 40.417153 -3.703999 40.417332 -3.704116</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0345701VK4704E</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>01</cp:label>
+      <cp:nationalCadastralReference>0345701VK4704E</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0345701VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417322 -3.703869</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0443501VK4704C">
+      <cp:areaValue uom="m2">187</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0443501VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0443501VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="12">40.416601 -3.702963 40.416529 -3.702962 40.416527 -3.703016 40.416527 -3.703031 40.416525 -3.703085 40.416525 -3.70309 40.416523 -3.703139 40.41656 -3.703143 40.416557 -3.703192 40.416614 -3.703196 40.416625 -3.702963 40.416601 -3.702963</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0443501VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>01</cp:label>
+      <cp:nationalCadastralReference>0443501VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0443501VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416576 -3.703069</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0443515VK4704C">
+      <cp:areaValue uom="m2">220</cp:areaValue>
+      <cp:beginLifespanVersion>2006-10-24T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0443515VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0443515VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="14">40.416165 -3.702959 40.416164 -3.702992 40.416163 -3.703028 40.416162 -3.703066 40.416162 -3.703082 40.41616 -3.703174 40.416182 -3.703175 40.416234 -3.703178 40.416235 -3.703118 40.416237 -3.703032 40.416241 -3.702896 40.416128 -3.702892 40.416127 -3.702962 40.416165 -3.702959</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0443515VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>15</cp:label>
+      <cp:nationalCadastralReference>0443515VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0443515VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416194 -3.703023</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0443516VK4704C">
+      <cp:areaValue uom="m2">302</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0443516VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0443516VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="14">40.416337 -3.702961 40.416337 -3.702907 40.416337 -3.702891 40.416333 -3.702848 40.416314 -3.702847 40.416241 -3.702845 40.416241 -3.702894 40.416237 -3.703032 40.416235 -3.703118 40.416234 -3.703178 40.416329 -3.703182 40.416331 -3.703124 40.416333 -3.70305 40.416337 -3.702961</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0443516VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>16</cp:label>
+      <cp:nationalCadastralReference>0443516VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0443516VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416286 -3.703013</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0443517VK4704C">
+      <cp:areaValue uom="m2">170</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0443517VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0443517VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="9">40.416414 -3.703055 40.416419 -3.702961 40.416337 -3.702961 40.416333 -3.70305 40.416331 -3.703124 40.416329 -3.703182 40.416408 -3.703185 40.416411 -3.703128 40.416414 -3.703055</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0443517VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>17</cp:label>
+      <cp:nationalCadastralReference>0443517VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0443517VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416373 -3.703072</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0443518VK4704C">
+      <cp:areaValue uom="m2">255</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0443518VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0443518VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="13">40.416527 -3.703016 40.416529 -3.702962 40.416419 -3.702961 40.416414 -3.703055 40.416411 -3.703128 40.416408 -3.703185 40.416557 -3.703192 40.41656 -3.703143 40.416523 -3.703139 40.416525 -3.70309 40.416525 -3.703085 40.416527 -3.703031 40.416527 -3.703016</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0443518VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>18</cp:label>
+      <cp:nationalCadastralReference>0443518VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0443518VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416474 -3.703082</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0444101VK4704C">
+      <cp:areaValue uom="m2">3447</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0444101VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0444101VK4704C.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="63">40.416568 -3.70377 40.416572 -3.703725 40.416569 -3.703724 40.416591 -3.70349 40.416594 -3.703491 40.416602 -3.703407 40.416599 -3.703407 40.416599 -3.703404 40.416599 -3.703402 40.416598 -3.703399 40.416597 -3.703397 40.416595 -3.703396 40.416594 -3.703395 40.416592 -3.703394 40.416592 -3.703391 40.416528 -3.703381 40.416528 -3.703385 40.416228 -3.703337 40.416229 -3.703334 40.416164 -3.703323 40.416164 -3.703326 40.416162 -3.703326 40.41616 -3.703326 40.416158 -3.703327 40.416157 -3.703329 40.416156 -3.703331 40.416155 -3.703333 40.416154 -3.703336 40.416152 -3.703335 40.416145 -3.703418 40.416148 -3.703419 40.416089 -3.704039 40.416087 -3.704039 40.416079 -3.704122 40.416082 -3.704123 40.416082 -3.704125 40.416082 -3.704128 40.416082 -3.70413 40.416084 -3.704132 40.416085 -3.704134 40.416087 -3.704135 40.416089 -3.704136 40.416089 -3.704138 40.416151 -3.704148 40.416152 -3.704145 40.416451 -3.704193 40.416451 -3.704196 40.416515 -3.704207 40.416515 -3.704204 40.416517 -3.704204 40.416519 -3.704204 40.416521 -3.704203 40.416523 -3.704201 40.416524 -3.704199 40.416525 -3.704197 40.416525 -3.704194 40.416528 -3.704195 40.416535 -3.704111 40.416533 -3.70411 40.416555 -3.703877 40.416557 -3.703877 40.416562 -3.70383 40.416568 -3.70377</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0444101VK4704C</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>01</cp:label>
+      <cp:nationalCadastralReference>0444101VK4704C</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0444101VK4704C" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.416341 -3.703765</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0445411VK4704E">
+      <cp:areaValue uom="m2">138</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0445411VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0445411VK4704E.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="14">40.417476 -3.703195 40.417488 -3.703191 40.417486 -3.703187 40.41745 -3.703074 40.417444 -3.703058 40.41744 -3.703048 40.417433 -3.703026 40.417357 -3.703066 40.417368 -3.703099 40.417374 -3.703115 40.417383 -3.703144 40.417413 -3.703232 40.417414 -3.703231 40.417476 -3.703195</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0445411VK4704E</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>11</cp:label>
+      <cp:nationalCadastralReference>0445411VK4704E</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0445411VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417422 -3.703128</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0445412VK4704E">
+      <cp:areaValue uom="m2">77</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0445412VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0445412VK4704E.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="14">40.417413 -3.703232 40.417383 -3.703144 40.417374 -3.703115 40.417368 -3.703099 40.417357 -3.703066 40.417316 -3.703087 40.417324 -3.703111 40.417328 -3.703123 40.417335 -3.703144 40.41735 -3.70319 40.417364 -3.703236 40.41737 -3.703253 40.417381 -3.703247 40.417413 -3.703232</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0445412VK4704E</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>12</cp:label>
+      <cp:nationalCadastralReference>0445412VK4704E</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0445412VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417364 -3.70316</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0445413VK4704E">
+      <cp:areaValue uom="m2">529</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0445413VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0445413VK4704E.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="37">40.417413 -3.703232 40.417381 -3.703247 40.41737 -3.703253 40.417364 -3.703236 40.41735 -3.70319 40.417335 -3.703144 40.417328 -3.703123 40.417324 -3.703111 40.417316 -3.703087 40.417227 -3.703134 40.417226 -3.703136 40.417224 -3.703137 40.417223 -3.703139 40.417223 -3.703142 40.417222 -3.703144 40.417222 -3.703146 40.417229 -3.703189 40.417236 -3.703245 40.41724 -3.703282 40.417243 -3.703324 40.417244 -3.703411 40.417243 -3.703451 40.417241 -3.703477 40.417241 -3.70348 40.417241 -3.703482 40.417241 -3.703485 40.417242 -3.703487 40.417243 -3.703489 40.417245 -3.703491 40.417247 -3.703492 40.417374 -3.703524 40.417377 -3.7035 40.417384 -3.703461 40.417401 -3.703346 40.417409 -3.703292 40.417414 -3.703231 40.417413 -3.703232</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0445413VK4704E</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>13</cp:label>
+      <cp:nationalCadastralReference>0445413VK4704E</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0445413VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417312 -3.703317</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+  <member>
+    <cp:CadastralParcel gml:id="ES.SDGC.CP.0445414VK4704E">
+      <cp:areaValue uom="m2">659</cp:areaValue>
+      <cp:beginLifespanVersion>2002-01-22T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+      <cp:geometry>
+        <gml:MultiSurface gml:id="MultiSurface_ES.SDGC.CP.0445414VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <gml:surfaceMember>
+            <gml:Surface gml:id="Surface_ES.SDGC.CP.0445414VK4704E.1" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+              <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="20">40.417614 -3.703416 40.417611 -3.703399 40.417596 -3.703328 40.417586 -3.703275 40.417559 -3.703161 40.417536 -3.703169 40.417486 -3.703187 40.417488 -3.703191 40.417476 -3.703195 40.417414 -3.703231 40.417409 -3.703292 40.417401 -3.703346 40.417384 -3.703461 40.417377 -3.7035 40.417374 -3.703524 40.417549 -3.703568 40.417587 -3.703544 40.417614 -3.703492 40.417572 -3.703449 40.417614 -3.703416</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </cp:geometry>
+      <cp:inspireId>
+        <Identifier xmlns="http://inspire.ec.europa.eu/schemas/base/3.3">
+          <localId>0445414VK4704E</localId>
+          <namespace>ES.SDGC.CP</namespace>
+        </Identifier>
+      </cp:inspireId>
+      <cp:label>14</cp:label>
+      <cp:nationalCadastralReference>0445414VK4704E</cp:nationalCadastralReference>
+      <cp:referencePoint>
+        <gml:Point gml:id="ReferencePoint_ES.SDGC.CP.0445414VK4704E" srsName="http://www.opengis.net/def/crs/EPSG/0/4326"> 
+          <gml:pos>40.417498 -3.70338</gml:pos>
+        </gml:Point>
+      </cp:referencePoint>
+    </cp:CadastralParcel>
+  </member>
+</FeatureCollection>

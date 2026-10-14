@@ -9,5 +9,7 @@ export const UMBRAL_ALTA = 0.8
 export const VENTAJA_ALTA = 0.2
 export const UMBRAL_MEDIA = 0.6
 
-// Parcelas más cercanas que se consultan por coords.
-export const MAX_PARCELAS = 10
+// Por coords: radio de búsqueda (p95 del desplazamiento medido en #26) y parcelas que se
+// consultan con DNPRC, las más cercanas.
+export const RADIO_M = 250
+export const MAX_PARCELAS = 25

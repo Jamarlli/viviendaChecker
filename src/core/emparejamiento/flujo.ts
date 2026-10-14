@@ -1,7 +1,7 @@
 import type { Anuncio, Emparejamiento, Inmueble, OrigenEmparejamiento } from '../tipos'
 import type { Almacen, ClienteCatastro, ErrorCatastro, Resultado } from './puertos'
-import { MAX_PARCELAS } from './constantes'
-import { calcularConfianza, ordenarCandidatos } from './puntuacion'
+import { MAX_PARCELAS, RADIO_M } from './constantes'
+import { calcularConfianza, coincideSuperficie, ordenarCandidatos } from './puntuacion'
 import { separarVia } from './via'
 
 export interface DepsEmparejamiento {
@@ -38,7 +38,9 @@ async function porCoordenadas(
   catastro: ClienteCatastro,
   { lat, lon }: { lat: number; lon: number },
 ): Promise<Resultado<Inmueble[]>> {
-  const parcelas = await catastro.buscarPorCoordenadas({ lat, lon }, anuncio.provincia)
+  let parcelas = await catastro.parcelasEnRadio({ lat, lon }, RADIO_M, anuncio.provincia)
+  // Degradación: el WFS es lento y menos estable que el callejero.
+  if (!parcelas.ok) parcelas = await catastro.buscarPorCoordenadas({ lat, lon }, anuncio.provincia)
   if (!parcelas.ok) return parcelas
   const cercanas = [...parcelas.valor]
     .sort((a, b) => a.distancia - b.distancia)
@@ -46,12 +48,14 @@ async function porCoordenadas(
   const rs = await Promise.all(cercanas.map((p) => catastro.buscarPorReferencia(p.pc)))
   // Una parcela que falla se descarta; solo es error si no queda ninguna.
   const inmuebles = rs.flatMap((r) => (r.ok ? r.valor : []))
+  const conSuperficie = inmuebles.filter((i) => coincideSuperficie(anuncio, i) !== false)
+  if (conSuperficie.length) return { ok: true, valor: conSuperficie }
   if (inmuebles.length) return { ok: true, valor: inmuebles }
   const error = rs.find((r) => !r.ok && r.error.tipo !== 'sinResultados')
   return error ?? fallo({ tipo: 'sinResultados', mensaje: 'Sin inmuebles' })
 }
 
-/** Spec 02: manual → dirección (DNPLOC) → coords (RCCOOR + DNPRC) → ninguna. Nunca lanza. */
+/** Spec 02: manual → dirección (DNPLOC) → coords (WFS o RCCOOR + DNPRC) → ninguna. Nunca lanza. */
 export async function emparejar(
   anuncio: Anuncio,
   { catastro, almacen }: DepsEmparejamiento,

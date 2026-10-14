@@ -34,6 +34,13 @@ export interface ClienteCatastro {
   /** Números de la vía cercanos a `l.numero` (vacío → primeros). */
   buscarNumeros(l: Localizacion): Promise<Resultado<NumeroVia[]>>
   buscarPorDireccion(l: Localizacion): Promise<Resultado<Inmueble[]>>
+  /** Parcelas a ≤ `radioM` (BBOX), ordenadas por distancia. */
+  parcelasEnRadio(
+    c: { lat: number; lon: number },
+    radioM: number,
+    provincia?: string,
+  ): Promise<Resultado<Parcela[]>>
+  /** Parcelas a ~25 m (distancia al polígono). */
   buscarPorCoordenadas(
     c: { lat: number; lon: number },
     provincia?: string,
