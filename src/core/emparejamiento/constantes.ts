@@ -3,6 +3,8 @@ export const PESOS = { superficie: 0.45, planta: 0.35, anio: 0.1, uso: 0.1 } as 
 
 export const TOLERANCIA_SUPERFICIE = 0.15
 export const FACTOR_UTILES = 1.2
+// Superficie que solo cuadra sumando garaje o trastero: la directa debe ganar.
+export const VALOR_ANEXO = 0.5
 // El año del Catastro es ruidoso: ±5 suma; más de 10 resta su peso.
 export const MARGEN_ANIO = 5
 export const MARGEN_ANIO_PENALIZA = 10

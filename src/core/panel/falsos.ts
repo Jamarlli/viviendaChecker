@@ -3,6 +3,7 @@ import type {
   Almacen,
   ClienteCatastro,
   NumeroVia,
+  Parcela,
   Resultado,
   SeleccionManual,
 } from '../emparejamiento/puertos'
@@ -46,6 +47,7 @@ export const anuncio = (datos: Partial<Anuncio> = {}): Anuncio => ({
 
 export interface Respuestas {
   direccion?: Resultado<Inmueble[]>
+  radio?: Resultado<Parcela[]>
   referencia?: (ref: string) => Resultado<Inmueble[]>
   numeros?: Resultado<NumeroVia[]>
 }
@@ -63,7 +65,7 @@ export function catastroFalso(r: Respuestas = {}) {
     },
     async parcelasEnRadio(c) {
       llamadas.push({ op: 'radio', arg: c })
-      return vacio
+      return r.radio ?? vacio
     },
     async buscarPorCoordenadas(c) {
       llamadas.push({ op: 'coordenadas', arg: c })

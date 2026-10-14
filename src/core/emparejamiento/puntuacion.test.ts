@@ -126,6 +126,36 @@ describe('puntuar', () => {
     expect(puntuar(anuncio(), inmueble({ uso: 'Comercial' }))).toBe(0)
   })
 
+  describe('superficie con garaje o trastero sumados', () => {
+    const vivienda = (m2: number, car = '0001') =>
+      inmueble({ rc: `1111111AA1111A${car}AA`, m2, uso: 'Residencial' })
+    const conGaraje = anuncio({ m2Construidos: 194, mencionaGaraje: true, garaje: 'incluido' })
+    const directa = 1
+    const viaAnexo = (0.45 / 2 + 0.1) / 0.55
+    const no = 0.1 / 0.55
+
+    it('vía anexo puntúa la mitad de la señal de superficie', () => {
+      expect(puntuar(conGaraje, vivienda(190))).toBeCloseTo(directa)
+      expect(puntuar(conGaraje, vivienda(160))).toBeCloseTo(viaAnexo)
+    })
+
+    it('la coincidencia directa queda por delante', () => {
+      const r = ordenarCandidatos(conGaraje, [vivienda(160), vivienda(190, '0002')])
+      expect(r.map((c) => c.inmueble.m2)).toEqual([190, 160])
+    })
+
+    it('solo útiles: útiles × 1,2 ≈ vivienda + anexo', () => {
+      const a = anuncio({ m2Utiles: 100, garaje: 'incluido' })
+      expect(puntuar(a, vivienda(80))).toBeCloseTo(viaAnexo)
+      expect(puntuar(a, vivienda(78))).toBeCloseTo(no)
+    })
+
+    it('mención sin garaje incluido ni trastero en básicas → no suma', () => {
+      const a = anuncio({ m2Construidos: 194, mencionaGaraje: true, mencionaTrastero: true })
+      expect(puntuar(a, vivienda(160))).toBeCloseTo(no)
+    })
+  })
+
   it('uso residencial sin distinguir mayúsculas', () => {
     expect(puntuar(anuncio(), inmueble({ uso: 'RESIDENCIAL' }))).toBeCloseTo(1)
   })

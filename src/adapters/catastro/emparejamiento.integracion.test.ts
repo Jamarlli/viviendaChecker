@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { discrepancias } from '../../core/discrepancias'
 import { emparejar } from '../../core/emparejamiento/flujo'
 import type { Almacen } from '../../core/emparejamiento/puertos'
 import type { Anuncio } from '../../core/tipos'
@@ -146,5 +147,34 @@ describe('emparejamiento con el Catastro (fixtures)', () => {
     const r = await emparejar(a, { catastro: c.catastro, almacen: sinSeleccion })
     expect(r).toEqual({ ok: false, error: { tipo: 'noSoportado' } })
     expect(c.urls).toEqual([])
+  })
+})
+
+// Parcela del 1.º en la medición de #33 (Modesto Lafuente, sin plazas en el Catastro).
+describe('111109550 (194 m², garaje incluido) frente a la parcela 1166101VK4716E grabada', () => {
+  const real: Anuncio = JSON.parse(
+    readFileSync('fixtures/idealista/esperado/111109550.json', 'utf8'),
+  )
+  const superficie = async (car: string) => {
+    const c = catastroFalso({ dnprc: () => 'dnprc-111109550' })
+    const r = await c.catastro.buscarPorReferencia('1166101VK4716E')
+    if (!r.ok) throw new Error()
+    const elegido = r.valor.find((i) => i.rc.slice(14, 18) === car)
+    if (!elegido) throw new Error()
+    return discrepancias(real, elegido, 'media', r.valor).find((d) => d.campo === 'superficie')
+  }
+
+  it('5.ª de 188 m² → ok', async () => {
+    expect((await superficie('0020'))?.nivel).toBe('ok')
+  })
+
+  it('5.ª de 163 m² → revisar: puede sumar la plaza (rango 20–35 m²)', async () => {
+    const d = await superficie('0019')
+    expect(d?.nivel).toBe('revisar')
+    expect(d?.explicacion).toContain('garaje/trastero')
+  })
+
+  it('5.ª de 146 m² → aviso: ni con la plaza cuadra', async () => {
+    expect((await superficie('0018'))?.nivel).toBe('aviso')
   })
 })

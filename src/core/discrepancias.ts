@@ -1,8 +1,11 @@
+import { cuadraConAnexo, USO_ANEXO } from './anexos'
 import { normalizarPlanta } from './planta'
 import type { Anuncio, Confianza, Discrepancia, Inmueble, TipoInmueble } from './tipos'
 
 const VIVIENDA: TipoInmueble[] = ['piso', 'atico', 'duplex', 'estudio', 'casa']
 const m2 = (n: number) => `${n} m²`
+const SUMA_ANEXO =
+  'El anuncio puede estar sumando el garaje/trastero, que en el Catastro es un inmueble aparte. Pide la superficie de la vivienda sola y comprueba que el anexo entra en la venta.'
 
 export function discrepancias(
   anuncio: Anuncio,
@@ -10,18 +13,20 @@ export function discrepancias(
   confianza: Confianza,
   parcela: Inmueble[],
 ): Discrepancia[] {
+  const sup = superficie(anuncio, inmueble, parcela)
   const r = [
-    superficie(anuncio, inmueble),
+    sup,
     anio(anuncio, inmueble),
     uso(anuncio, inmueble),
     planta(anuncio, inmueble),
-    anexo(anuncio, inmueble, parcela),
+    // Ya lo dice la superficie.
+    sup?.explicacion === SUMA_ANEXO ? undefined : anexo(anuncio, inmueble, parcela),
   ].filter((d): d is Discrepancia => d !== undefined)
   const pocoFiable = confianza === 'baja' || confianza === 'ninguna'
   return pocoFiable ? r.map((d) => ({ ...d, pocoFiable })) : r
 }
 
-function superficie(a: Anuncio, i: Inmueble): Discrepancia | undefined {
+function superficie(a: Anuncio, i: Inmueble, parcela: Inmueble[]): Discrepancia | undefined {
   if (!i.m2) return
   const catastro = m2(i.m2)
   if (a.m2Construidos) {
@@ -37,6 +42,9 @@ function superficie(a: Anuncio, i: Inmueble): Discrepancia | undefined {
         explicacion:
           'El Catastro incluye zonas comunes; diferencias de hasta un 10 % son normales.',
       }
+    // El anexo debe cubrir al menos lo que pasa del 10 %.
+    if (cuadraConAnexo(a, a.m2Construidos, i, parcela, a.m2Construidos - i.m2 * 1.1))
+      return { campo: 'superficie', nivel: 'revisar', anuncio, catastro, explicacion: SUMA_ANEXO }
     if (dif * 5 <= i.m2)
       return {
         campo: 'superficie',
@@ -120,7 +128,7 @@ function planta(a: Anuncio, i: Inmueble): Discrepancia | undefined {
 
 function anexo(a: Anuncio, i: Inmueble, parcela: Inmueble[]): Discrepancia | undefined {
   if (!a.mencionaTrastero && !a.mencionaGaraje) return
-  const hay = parcela.some((p) => p.rc !== i.rc && /almac|estacion|aparca/i.test(p.uso))
+  const hay = parcela.some((p) => p.rc !== i.rc && USO_ANEXO.test(p.uso))
   if (!hay) return
   const que = [a.mencionaTrastero && 'el trastero', a.mencionaGaraje && 'el garaje']
     .filter(Boolean)
