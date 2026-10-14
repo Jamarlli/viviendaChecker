@@ -111,11 +111,8 @@ describe('emparejamiento con el Catastro (fixtures)', () => {
     })
     const a = anuncio({ ...datos3CD, coords: { lat: 40.4168, lon: -3.70375, aproximada: true } })
     const r = await emparejar(a, { catastro: c.catastro, almacen: sinSeleccion })
-    expect(c.urls.map((u) => u.searchParams.get('RefCat') ?? 'wfs')).toEqual([
-      'wfs',
-      '0444101VK4704C',
-      ...c.urls.slice(2).map((u) => u.searchParams.get('RefCat')),
-    ])
+    expect(c.urls[0]?.pathname).toMatch(/wfsCP\.aspx$/)
+    expect(c.urls[1]?.searchParams.get('RefCat')).toBe('0444101VK4704C')
     expect(c.urls).toHaveLength(18)
     if (!r.ok) throw new Error()
     expect(r.valor.origen).toBe('coords')

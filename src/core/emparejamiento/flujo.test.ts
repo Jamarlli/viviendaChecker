@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Anuncio, Inmueble } from '../tipos'
+import { CONCURRENCIA_DNPRC } from './constantes'
 import { emparejar, guardarSeleccion } from './flujo'
 import type {
   Almacen,
@@ -248,13 +249,61 @@ describe('emparejar · coords', () => {
     expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
   })
 
-  it('fallan todas → error', async () => {
+  it('fallan todas las del WFS → pasada de ~25 m', async () => {
+    const c = catastroFalso({
+      radio: ok([parcela('P1', 1), parcela('P2', 2)]),
+      coordenadas: ok([parcela('C1', 1)]),
+      referencia: (pc) => (pc === 'C1' ? ok([BUENO]) : err({ tipo: 'red', mensaje: 'x' })),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(c.ops()).toEqual(['radio', 'referencia', 'referencia', 'coordenadas', 'referencia'])
+    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
+  })
+
+  it('fallan todas y la pasada de ~25 m no da nada → error', async () => {
     const c = catastroFalso({
       radio: ok([parcela('P1', 1), parcela('P2', 2)]),
       referencia: (pc) => (pc === 'P1' ? vacio : err({ tipo: 'red', mensaje: 'x' })),
     })
     const r = await emparejar(soloCoords, deps(c.catastro))
     expect(r).toEqual(err({ tipo: 'red', mensaje: 'x' }))
+  })
+
+  it(`DNPRC con como mucho ${CONCURRENCIA_DNPRC} a la vez`, async () => {
+    let activas = 0
+    let maximo = 0
+    const c = catastroFalso({
+      radio: ok(Array.from({ length: 20 }, (_, i) => parcela(`P${i}`, i))),
+    })
+    c.catastro.buscarPorReferencia = async () => {
+      maximo = Math.max(maximo, ++activas)
+      await new Promise((r) => setTimeout(r, 1))
+      activas--
+      return ok([BUENO])
+    }
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(maximo).toBe(CONCURRENCIA_DNPRC)
+    expect(r.ok && r.valor.candidatos).toHaveLength(20)
+  })
+
+  it('la señal llega al Catastro; abortada, no degrada ni sigue', async () => {
+    const ctrl = new AbortController()
+    const c = catastroFalso({ radio: ok([parcela('P1', 1), parcela('P2', 2)]) })
+    const vistas: (AbortSignal | undefined)[] = []
+    const radio = c.catastro.parcelasEnRadio
+    c.catastro.parcelasEnRadio = (co, m, p, s) => {
+      vistas.push(s)
+      return radio(co, m, p, s)
+    }
+    c.catastro.buscarPorReferencia = async (_, s) => {
+      vistas.push(s)
+      ctrl.abort()
+      return err({ tipo: 'red', mensaje: 'abortado' })
+    }
+    const r = await emparejar(soloCoords, deps(c.catastro), ctrl.signal)
+    expect(vistas).toEqual([ctrl.signal, ctrl.signal])
+    expect(c.ops()).toEqual(['radio'])
+    expect(r.ok).toBe(false)
   })
 
   it('todas sin inmuebles → ninguna', async () => {

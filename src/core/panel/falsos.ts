@@ -51,14 +51,14 @@ export interface Respuestas {
 }
 
 export function catastroFalso(r: Respuestas = {}) {
-  const llamadas: { op: string; arg: unknown }[] = []
+  const llamadas: { op: string; arg: unknown; signal?: AbortSignal }[] = []
   const catastro: ClienteCatastro = {
     async buscarNumeros(l) {
       llamadas.push({ op: 'numeros', arg: l })
       return r.numeros ?? vacio
     },
-    async buscarPorDireccion(l) {
-      llamadas.push({ op: 'direccion', arg: l })
+    async buscarPorDireccion(l, signal) {
+      llamadas.push({ op: 'direccion', arg: l, signal })
       return r.direccion ?? vacio
     },
     async parcelasEnRadio(c) {

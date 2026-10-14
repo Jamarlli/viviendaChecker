@@ -78,6 +78,18 @@ describe('controlador del panel', () => {
     expect(e.tipo === 'analisis' && e.analisis.anuncio.id).toBe('nuevo')
   })
 
+  it('un anuncio nuevo o olvidar abortan el análisis en curso', async () => {
+    const m = montar(conBueno)
+    const viejo = m.c.recibirAnuncio(1, anuncio({ id: 'viejo' }))
+    await m.c.recibirAnuncio(1, anuncio({ id: 'nuevo' }))
+    await viejo
+    const [s1, s2] = m.f.llamadas.filter((l) => l.op === 'direccion').map((l) => l.signal)
+    expect(s1?.aborted).toBe(true)
+    expect(s2?.aborted).toBe(false)
+    await m.c.olvidar(1)
+    expect(s2?.aborted).toBe(true)
+  })
+
   it('confirmar guarda la RC y reanaliza como manual', async () => {
     const m = montar({ ...conBueno, referencia: () => ({ ok: true, valor: [BUENO] }) })
     await m.c.recibirAnuncio(1, anuncio())

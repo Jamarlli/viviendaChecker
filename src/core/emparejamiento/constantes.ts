@@ -13,3 +13,5 @@ export const UMBRAL_MEDIA = 0.6
 // consultan con DNPRC, las más cercanas.
 export const RADIO_M = 250
 export const MAX_PARCELAS = 25
+// DNPRC simultáneas: no saturar la OVC.
+export const CONCURRENCIA_DNPRC = 5

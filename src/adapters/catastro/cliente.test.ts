@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-import { crearClienteCatastro, esProvinciaForal } from './cliente'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { crearClienteCatastro, esProvinciaForal, TIEMPO_WFS_MS } from './cliente'
 
 const fixture = (nombre: string) => readFileSync(`fixtures/catastro/${nombre}.json`, 'utf8')
 
@@ -201,6 +201,50 @@ describe('parcelasEnRadio (WFS INSPIRE)', () => {
     expect(r1.ok === false && r1.error.tipo).toBe('api')
     const r2 = await crearClienteCatastro(fetchFalso('', 500).fn).parcelasEnRadio(sol, 250)
     expect(r2.ok === false && r2.error.tipo).toBe('red')
+  })
+
+  it('descarta parcelas a más de radioM', async () => {
+    const r = await crearClienteCatastro(fetchFalso(xml('wfs-cp-parcelas')).fn).parcelasEnRadio(
+      sol,
+      60,
+    )
+    if (!r.ok) throw new Error('esperaba ok')
+    expect(r.valor.length).toBeGreaterThan(0)
+    expect(r.valor.length).toBeLessThan(17)
+    expect(r.valor.every((p) => p.distancia <= 60)).toBe(true)
+  })
+
+  describe('cortes', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    // fetch que solo termina si se aborta.
+    const colgado = (async (_: unknown, init?: RequestInit) =>
+      new Promise((_, rechazar) =>
+        init?.signal?.addEventListener('abort', () => rechazar(init.signal?.reason)),
+      )) as typeof fetch
+
+    it('sin respuesta en TIEMPO_WFS_MS → red', async () => {
+      vi.useFakeTimers()
+      const p = crearClienteCatastro(colgado).parcelasEnRadio(sol, 250)
+      await vi.advanceTimersByTimeAsync(TIEMPO_WFS_MS)
+      expect(await p).toEqual({ ok: false, error: { tipo: 'red', mensaje: 'Tiempo agotado' } })
+    })
+
+    it('señal abortada → red, sin esperar', async () => {
+      const ctrl = new AbortController()
+      const p = crearClienteCatastro(colgado).parcelasEnRadio(sol, 250, undefined, ctrl.signal)
+      ctrl.abort()
+      expect(await p).toMatchObject({ ok: false, error: { tipo: 'red' } })
+    })
+
+    it('la señal llega al fetch del callejero', async () => {
+      const ctrl = new AbortController()
+      const p = crearClienteCatastro(colgado).buscarPorReferencia('2853604VK4725D', ctrl.signal)
+      ctrl.abort()
+      expect(await p).toMatchObject({ ok: false, error: { tipo: 'red' } })
+    })
   })
 
   it('provincia foral → noSoportado', async () => {
