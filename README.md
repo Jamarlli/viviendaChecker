@@ -38,3 +38,7 @@ Extensión de navegador **open source** que contrasta los anuncios de portales i
 | Coste | Gratis + informe 24,90 € | Freemium, desde 14,99 €/mes | Gratis | Gratis | Gratis | Gratis |
 
 Datos tomados de las webs y fichas de cada producto (octubre 2026), sin verificación independiente.
+
+## Licencia
+
+[GPL-3.0](LICENSE)
