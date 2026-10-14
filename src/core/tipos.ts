@@ -12,7 +12,7 @@ export interface Anuncio {
   municipio?: string
   provincia?: string
   coords?: { lat: number; lon: number; aproximada: boolean }
-  /** Normalizada: 'bajo' | '1' | '2'… */
+  /** Normalizada con `normalizarPlanta` (core/planta.ts). */
   planta?: string
   m2Construidos?: number
   m2Utiles?: number
@@ -58,6 +58,8 @@ export interface Discrepancia {
   anuncio?: string
   catastro?: string
   explicacion: string
+  /** Emparejamiento de confianza baja o ninguna. */
+  pocoFiable?: boolean
 }
 
 // 04 · Gastos de compra
