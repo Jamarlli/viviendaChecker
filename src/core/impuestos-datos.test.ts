@@ -36,6 +36,23 @@ describe('data/impuestos.json', () => {
     expect(typeof c.verificado).toBe('boolean')
   })
 
+  it('obra nueva: IGIC en Canarias, IPSI en Ceuta y Melilla, con fuente', () => {
+    const conObraNueva = comunidades.filter((c) => 'obraNueva' in c)
+    expect(conObraNueva.map((c) => [c.nombre, c.obraNueva?.impuesto])).toEqual([
+      ['Canarias', 'igic'],
+      ['Ceuta', 'ipsi'],
+      ['Melilla', 'ipsi'],
+    ])
+    for (const { obraNueva: o } of conObraNueva) {
+      expect(o?.tipo).toBeGreaterThan(0)
+      expect(o?.tipo).toBeLessThanOrEqual(0.15)
+      expect(o?.nota).toBeTruthy()
+      expect(o?.fuente).toMatch(/^https:\/\//)
+      expect(o?.fechaConsulta).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(typeof o?.verificado).toBe('boolean')
+    }
+  })
+
   it('gastos fijos con rango coherente y fuente', () => {
     const { notaria, registro, gestoria, fuente } = datos.gastos
     for (const r of [notaria, registro, gestoria]) {

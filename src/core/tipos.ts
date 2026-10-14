@@ -69,7 +69,8 @@ export interface Rango {
   max: number
 }
 
-export type ConceptoGasto = 'itp' | 'iva' | 'ajd' | 'notaria' | 'registro' | 'gestoria'
+export type ConceptoGasto =
+  'itp' | 'iva' | 'igic' | 'ipsi' | 'ajd' | 'notaria' | 'registro' | 'gestoria'
 
 export interface PartidaGasto {
   concepto: ConceptoGasto
@@ -80,6 +81,8 @@ export interface Gastos {
   comunidad: string
   desglose: PartidaGasto[]
   total: Rango
+  /** Obra nueva con IGIC o IPSI: tipos reducidos y sus condiciones. */
+  nota?: string
 }
 
 // 05 · Alertas
