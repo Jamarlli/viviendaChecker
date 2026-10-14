@@ -1,9 +1,12 @@
 import type { Page } from '@playwright/test'
-import { expect, test, urlAnuncio } from './extension'
+import { expect, REAL, test, urlAnuncio } from './extension'
+
+// Con el Catastro real el análisis tarda; grabado, es inmediato.
+const ESPERA = REAL ? 120_000 : 10_000
 
 /** Espera a que el panel termine de consultar. */
 async function listo(panel: Page) {
-  await expect(panel.locator('#app[aria-busy="false"]')).toBeAttached({ timeout: 120_000 })
+  await expect(panel.locator('#app[aria-busy="false"]')).toBeAttached({ timeout: ESPERA })
   await expect(panel.locator('#app h2, #app .vacio').first()).toBeVisible()
 }
 
@@ -24,8 +27,11 @@ test('muestra inmueble, discrepancias, gastos y siguientes pasos', async ({ ext 
 test('"Es este" confirma y persiste al recargar', async ({ ext }) => {
   const { anuncio, panel } = await ext.abrir('111109550')
   await listo(panel)
-  await panel.getByRole('button', { name: 'Es este' }).nth(1).click()
+  const rc = await panel.locator('.lista li[data-rc]').nth(1).getAttribute('data-rc')
+  expect(rc).toBeTruthy()
+  await panel.locator(`.lista li[data-rc="${rc}"]`).getByRole('button', { name: 'Es este' }).click()
   await expect(sello(panel)).toHaveText('Confirmado por ti')
+  await expect(panel.locator('.rc').first()).toHaveText(rc ?? '')
   await expect(panel.getByRole('heading', { name: 'Inmueble' })).toBeFocused()
   await anuncio.reload()
   await panel.reload()
@@ -39,12 +45,12 @@ test('búsqueda guiada: calle → número → planta y puerta', async ({ ext }) 
   await listo(panel)
   await panel.getByText('Buscar por calle y número').click()
   await panel.getByRole('button', { name: 'Ver números' }).click()
-  await expect(panel.getByText('Elige el número:')).toBeVisible({ timeout: 30_000 })
+  await expect(panel.getByText('Elige el número:')).toBeVisible({ timeout: ESPERA })
   await panel.locator('.numeros button').first().click()
-  await expect(panel.getByText(/elige planta y puerta/)).toBeVisible({ timeout: 30_000 })
+  await expect(panel.getByText(/elige planta y puerta/)).toBeVisible({ timeout: ESPERA })
   await capturar(panel, 'busqueda')
   await panel.locator('details .lista').getByRole('button', { name: 'Es este' }).first().click()
-  await expect(sello(panel)).toHaveText('Confirmado por ti', { timeout: 30_000 })
+  await expect(sello(panel)).toHaveText('Confirmado por ti', { timeout: ESPERA })
 })
 
 test('pegar RC inválida avisa; válida confirma', async ({ ext }) => {
@@ -60,15 +66,16 @@ test('pegar RC inválida avisa; válida confirma', async ({ ext }) => {
   await capturar(panel, 'rc-invalida')
   await campo.fill(valida)
   await panel.getByRole('button', { name: 'Usar' }).click()
-  await expect(sello(panel)).toHaveText('Confirmado por ti', { timeout: 30_000 })
+  await expect(sello(panel)).toHaveText('Confirmado por ti', { timeout: ESPERA })
 })
 
 test('cambiar de anuncio en la pestaña repinta el panel', async ({ ext }) => {
   const { anuncio, panel } = await ext.abrir('108505570')
   await listo(panel)
   const antes = await panel.locator('.rc').first().textContent()
+  expect(antes).toBeTruthy()
   await anuncio.goto(urlAnuncio('110258143'))
-  await expect(panel.locator('.rc').first()).not.toHaveText(antes ?? '', { timeout: 120_000 })
+  await expect(panel.locator('.rc').first()).not.toHaveText(antes ?? '', { timeout: ESPERA })
   await listo(panel)
   await capturar(panel, 'cambio-anuncio')
 })

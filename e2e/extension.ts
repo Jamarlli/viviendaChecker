@@ -1,5 +1,5 @@
-// ExtensiÃ³n cargada en Chromium con Idealista servido desde fixtures y Catastro grabado o real.
-// `npm run e2e`: grabado. `E2E_CATASTRO=real`: API real; con `E2E_GRABAR=1` ademÃ¡s graba.
+// Extensión cargada en Chromium con Idealista servido desde fixtures y Catastro grabado o real.
+// `npm run e2e`: grabado. `E2E_CATASTRO=real`: API real; con `E2E_GRABAR=1` además graba.
 // `E2E_HEADED=1`: con ventana.
 import { test as base, chromium, type BrowserContext, type Page } from '@playwright/test'
 import { createHash } from 'node:crypto'
@@ -8,9 +8,9 @@ import { join, resolve } from 'node:path'
 
 const EXTENSION = resolve('.output/chrome-mv3-e2e')
 const IDEALISTA = 'fixtures/idealista'
-const GRABACIONES = 'fixtures/catastro/e2e'
+export const GRABACIONES = 'fixtures/catastro/e2e'
 export const REAL = process.env.E2E_CATASTRO === 'real'
-const GRABAR = REAL && !!process.env.E2E_GRABAR
+export const GRABAR = REAL && !!process.env.E2E_GRABAR
 
 export const urlAnuncio = (id: string) => `https://www.idealista.com/inmueble/${id}/`
 
@@ -50,9 +50,9 @@ async function enrutar(context: BrowserContext, faltan: string[]) {
 
 export interface Extension {
   context: BrowserContext
-  /** Peticiones al Catastro sin grabaciÃ³n (modo grabado). */
+  /** Peticiones al Catastro sin grabación (modo grabado). */
   faltan: string[]
-  /** Abre el anuncio y el panel fijado a su pestaÃ±a, a 360 px. */
+  /** Abre el anuncio y el panel fijado a su pestaña, a 360 px. */
   abrir(idAnuncio: string): Promise<{ anuncio: Page; panel: Page }>
 }
 
@@ -72,13 +72,14 @@ export const test = base.extend<{ ext: Extension }>({
 
       async function abrir(idAnuncio: string) {
         const anuncio = await context.newPage()
-        await anuncio.goto(urlAnuncio(idAnuncio))
-        await anuncio.bringToFront()
-        const tab = await sw.evaluate(async () => {
+        const url = urlAnuncio(idAnuncio)
+        await anuncio.goto(url)
+        const tab = await sw.evaluate(async (url) => {
           const { chrome } = globalThis as unknown as { chrome: typeof browser }
-          const [t] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+          const [t] = await chrome.tabs.query({ url })
           return t?.id
-        })
+        }, url)
+        if (tab === undefined) throw new Error(`Sin pestaña para ${url}`)
         const panel = await context.newPage()
         await panel.setViewportSize({ width: 360, height: 800 })
         await panel.goto(`chrome-extension://${id}/sidepanel.html?tab=${tab}`)

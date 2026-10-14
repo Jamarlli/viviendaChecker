@@ -144,7 +144,7 @@ function seccionInmueble(a: Analisis): HTMLElement {
           ...v.candidatos.map((c) =>
             h(
               'li',
-              {},
+              { 'data-rc': c.rc },
               h('span', {}, c.etiqueta, h('small', {}, ` · coincide ${c.coincidencia}`)),
               boton('Es este', () => void confirmar(c.rc, errorInmueble)),
             ),
@@ -229,7 +229,7 @@ function busqueda(a: Analisis, tab: number): Hijo {
         ...r.valor.map((c) =>
           h(
             'li',
-            {},
+            { 'data-rc': c.inmueble.rc },
             h('span', {}, etiquetaInmueble(c.inmueble)),
             boton('Es este', () => void confirmar(c.inmueble.rc, error)),
           ),
