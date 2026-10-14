@@ -14,10 +14,12 @@ Gastos { comunidad: string; desglose: PartidaGasto[]; total: Rango }
 - Obra nueva: IVA 10 % + AJD de la comunidad autónoma.
 - Notaría, registro y gestoría: rango fijo estimado.
 - Tabla de tipos en `data/impuestos.json`, con fecha y fuente por comunidad.
-- ITP por tramos (`itp.modo`): `marginal` (cada porción a su tipo) o `total` (todo el valor al tipo de su tramo).
+- ITP por tramos (`itp.modo`): `marginal` (cada porción a su tipo) o `total` (todo el valor al tipo de su tramo). Un tramo aplica al valor que excede de `desde`.
+- Importes redondeados a céntimos.
+- Provisional: obra nueva en Canarias, Ceuta y Melilla sin partida de IVA (solo AJD) hasta resolver la duda de IGIC/IPSI.
 
 ## Criterios
-- [ ] Provincia → comunidad autónoma (incluidas Ceuta y Melilla).
+- [ ] Provincia → comunidad autónoma (incluidas Ceuta y Melilla), ignorando tildes, mayúsculas y variantes. Desconocida → no se calcula.
 - [ ] Devuelve desglose y total.
 - [ ] Sin precio o sin provincia → no se calcula.
 - [ ] Nota fija: "Tipo general. Puede haber tipos reducidos (jóvenes, familia numerosa…) y la base puede ser el valor de referencia si es mayor que el precio."
