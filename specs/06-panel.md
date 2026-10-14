@@ -34,7 +34,7 @@ Verificado con la API: ninguna consulta devuelve todos los números de una vía.
 1. **Inmueble**: RC, dirección, confianza, "Sin confirmar"/"Confirmado por ti"; candidatos, búsqueda guiada y pegar RC.
 2. **Discrepancias**: primero avisos, luego revisar, luego ok. Con `pocoFiable`, "emparejamiento poco fiable".
 3. **Alertas** del texto, con la frase que la activa.
-4. **Gastos de compra**: desglose, total y la nota fija (`NOTA_GASTOS`).
+4. **Gastos de compra**: desglose, total, la nota fija (`NOTA_GASTOS`) y `Gastos.nota` si la hay.
 5. **Siguientes pasos**: Sede del Catastro con la RC y nota simple (sede.registradores.org).
 
 ## Criterios
