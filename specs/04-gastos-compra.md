@@ -2,6 +2,13 @@
 
 Estimación de impuestos y gastos sobre el precio del anuncio.
 
+## Modelo
+```ts
+Rango { min: number; max: number }   // impuestos: min = max
+PartidaGasto { concepto: 'itp' | 'iva' | 'ajd' | 'notaria' | 'registro' | 'gestoria'; importe: Rango }
+Gastos { comunidad: string; desglose: PartidaGasto[]; total: Rango }
+```
+
 ## Reglas
 - Segunda mano: ITP, tipo general de la comunidad autónoma.
 - Obra nueva: IVA 10 % + AJD de la comunidad autónoma.
