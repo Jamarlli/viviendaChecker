@@ -24,7 +24,15 @@ export interface Localizacion {
   numero: string
 }
 
+/** Número de una vía y su parcela (14 car.). */
+export interface NumeroVia {
+  numero: string
+  pc: string
+}
+
 export interface ClienteCatastro {
+  /** Números de la vía cercanos a `l.numero` (vacío → primeros). */
+  buscarNumeros(l: Localizacion): Promise<Resultado<NumeroVia[]>>
   buscarPorDireccion(l: Localizacion): Promise<Resultado<Inmueble[]>>
   buscarPorCoordenadas(
     c: { lat: number; lon: number },

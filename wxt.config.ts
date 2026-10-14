@@ -7,6 +7,7 @@ export default defineConfig({
     description: 'Contrasta anuncios de Idealista con el Catastro',
     action: {},
     permissions: ['sidePanel', 'storage'],
-    host_permissions: ['https://www.idealista.com/*', 'https://ovc.catastro.meh.es/*'],
+    // El content script se inyecta por `matches`; no hace falta permiso de host en Idealista.
+    host_permissions: ['https://ovc.catastro.meh.es/*'],
   },
 })

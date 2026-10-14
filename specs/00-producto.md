@@ -37,3 +37,4 @@ Hexagonal.
   - `Consulta_DNPLOC`: inmuebles por dirección.
   - `Consulta_RCCOOR_Distancia`: parcelas cercanas a unas coordenadas.
   - `Consulta_DNPRC`: inmuebles de una parcela o datos de una referencia.
+  - `ObtenerNumerero`: números de una vía cercanos a uno dado.

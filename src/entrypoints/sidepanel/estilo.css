@@ -1,0 +1,248 @@
+:root {
+  color-scheme: light dark;
+  --fondo: #ffffff;
+  --texto: #1c1d1f;
+  --suave: #5b5f66;
+  --borde: #d9dce1;
+  --tarjeta: #f5f6f8;
+  --acento: #1f5fbf;
+  --ok: #1d7a3a;
+  --revisar: #9a6200;
+  --aviso: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #17181a;
+    --texto: #ecedef;
+    --suave: #a3a7ae;
+    --borde: #34373c;
+    --tarjeta: #212326;
+    --acento: #8ab4f8;
+    --ok: #6dd58c;
+    --revisar: #f2b84b;
+    --aviso: #f28b82;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font:
+    14px/1.45 system-ui,
+    sans-serif;
+}
+
+main {
+  padding: 12px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+section {
+  border-bottom: 1px solid var(--borde);
+  padding: 8px 0 12px;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 4px 0 8px;
+}
+
+h3 {
+  font-size: 0.9rem;
+  margin: 12px 0 4px;
+}
+
+p {
+  margin: 4px 0;
+}
+
+a {
+  color: var(--acento);
+}
+
+.vacio {
+  color: var(--suave);
+  padding: 24px 0;
+  text-align: center;
+}
+
+.fuente,
+.nota,
+small {
+  color: var(--suave);
+  font-size: 0.85em;
+}
+
+.rc {
+  font-family: ui-monospace, monospace;
+}
+
+.sello {
+  display: inline-block;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-weight: 600;
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.revisar {
+  color: var(--revisar);
+}
+
+.aviso {
+  color: var(--aviso);
+  font-weight: 600;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lista li,
+.discrepancias li,
+.alertas li {
+  background: var(--tarjeta);
+  border-radius: 6px;
+  margin: 6px 0;
+  padding: 8px;
+}
+
+.lista li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.discrepancias li {
+  border-left: 4px solid currentColor;
+}
+
+.discrepancias li p {
+  color: var(--texto);
+}
+
+.discrepancias .datos {
+  font-variant-numeric: tabular-nums;
+}
+
+.enlaces li {
+  margin: 4px 0;
+}
+
+blockquote {
+  margin: 4px 0 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--borde);
+  color: var(--suave);
+}
+
+details {
+  margin-top: 8px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--acento);
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  margin: 8px 0;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85em;
+  color: var(--suave);
+  flex: 1 1 120px;
+}
+
+input {
+  font: inherit;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 6px;
+  width: 100%;
+}
+
+button {
+  font: inherit;
+  color: var(--fondo);
+  background: var(--acento);
+  border: 0;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.numeros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+caption {
+  text-align: left;
+  color: var(--suave);
+  font-size: 0.85em;
+}
+
+th,
+td {
+  padding: 4px 0;
+  text-align: left;
+  font-weight: normal;
+}
+
+td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tfoot th,
+tfoot td {
+  font-weight: 600;
+  border-top: 1px solid var(--borde);
+}
+
+.aviso:empty,
+.linea:empty {
+  display: none;
+}
+
+.linea {
+  color: var(--suave);
+  margin: 0 0 8px;
+}
