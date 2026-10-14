@@ -18,6 +18,10 @@ export type {
 const BASE = 'https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/'
 const CALLEJERO = `${BASE}COVCCallejero.svc/json/`
 const COORDENADAS = `${BASE}COVCCoordenadas.svc/json/`
+const WFS_PARCELAS = 'https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx'
+const M_POR_GRADO = 111320
+// En Madrid centro el WFS tarda ~10 s a 250 m; más allá, mejor degradar a RCCOOR.
+export const TIEMPO_WFS_MS = 15_000
 
 // Códigos OVC que significan "no encontrado", no avería.
 const SIN_RESULTADOS = new Set(['5', '33', '43'])
@@ -95,10 +99,11 @@ async function consultar<T>(
   fetchFn: typeof fetch,
   url: string,
   extraer: (r: Json) => T[],
+  signal?: AbortSignal,
 ): Promise<Resultado<T[]>> {
   let texto: string
   try {
-    const res = await fetchFn(url)
+    const res = await fetchFn(url, { signal })
     if (!res.ok) return { ok: false, error: { tipo: 'red', mensaje: `HTTP ${res.status}` } }
     texto = await res.text()
   } catch (e) {
@@ -142,6 +147,60 @@ async function consultar<T>(
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+type Punto = { lat: number; lon: number }
+
+// Equirectangular: error despreciable a 250 m.
+function distanciaM(a: Punto, b: Punto): number {
+  const x = (b.lon - a.lon) * Math.cos((((a.lat + b.lat) / 2) * Math.PI) / 180)
+  return Math.hypot(x, b.lat - a.lat) * M_POR_GRADO
+}
+
+const etiqueta = (bloque: string, nombre: string) =>
+  new RegExp(`<${nombre}[^>]*>([^<]*)</${nombre}>`).exec(bloque)?.[1]?.trim()
+
+/** Aborta con `signal` o al pasar `ms` (setTimeout, no AbortSignal.timeout: así se prueba con timers falsos). */
+function conLimite(ms: number, signal?: AbortSignal) {
+  const ctrl = new AbortController()
+  const abortar = () => ctrl.abort(signal?.reason)
+  if (signal?.aborted) abortar()
+  signal?.addEventListener('abort', abortar, { once: true })
+  const t = setTimeout(() => ctrl.abort(new Error('Tiempo agotado')), ms)
+  return {
+    signal: ctrl.signal,
+    fin() {
+      clearTimeout(t)
+      signal?.removeEventListener('abort', abortar)
+    },
+  }
+}
+
+/** GML de `CadastralParcel`. Sin DOMParser: no existe en el service worker. */
+function parcelasGml(gml: string, centro: Punto, radioM: number): Resultado<Parcela[]> {
+  if (gml.includes('<ExceptionReport')) {
+    const mensaje = /<!\[CDATA\[([^\]]*)\]\]>/.exec(gml)?.[1] ?? 'Error WFS'
+    return /No records/i.test(mensaje)
+      ? { ok: false, error: { tipo: 'sinResultados', mensaje } }
+      : { ok: false, error: { tipo: 'api', mensaje } }
+  }
+  if (!gml.includes('FeatureCollection'))
+    return { ok: false, error: { tipo: 'api', mensaje: 'Respuesta no válida' } }
+
+  const valor = gml
+    .split('</member>')
+    .flatMap((bloque) => {
+      const pc = etiqueta(bloque, 'cp:nationalCadastralReference')
+      const pos = etiqueta(bloque, 'gml:pos')?.split(/\s+/).map(Number)
+      if (!pc || pos?.length !== 2) return []
+      const [lat = NaN, lon = NaN] = pos
+      return [{ pc, direccion: '', distancia: Math.round(distanciaM(centro, { lat, lon })) }]
+    })
+    .filter((p) => p.distancia <= radioM)
+    .sort((a, b) => a.distancia - b.distancia)
+  return valor.length
+    ? { ok: true, valor }
+    : { ok: false, error: { tipo: 'sinResultados', mensaje: 'Sin parcelas' } }
+}
+
 export function crearClienteCatastro(fetchFn: typeof fetch): ClienteCatastro {
   return {
     buscarNumeros(l: Localizacion): Promise<Resultado<NumeroVia[]>> {
@@ -157,7 +216,7 @@ export function crearClienteCatastro(fetchFn: typeof fetch): ClienteCatastro {
       return consultar(fetchFn, `${CALLEJERO}ObtenerNumerero?${q}`, numeros)
     },
 
-    buscarPorDireccion(l: Localizacion): Promise<Resultado<Inmueble[]>> {
+    buscarPorDireccion(l: Localizacion, signal?: AbortSignal): Promise<Resultado<Inmueble[]>> {
       if (esProvinciaForal(l.provincia)) return Promise.resolve(noSoportado)
       const q = new URLSearchParams({
         Provincia: l.provincia,
@@ -166,12 +225,13 @@ export function crearClienteCatastro(fetchFn: typeof fetch): ClienteCatastro {
         Calle: l.calle,
         Numero: l.numero,
       })
-      return consultar(fetchFn, `${CALLEJERO}Consulta_DNPLOC?${q}`, inmuebles)
+      return consultar(fetchFn, `${CALLEJERO}Consulta_DNPLOC?${q}`, inmuebles, signal)
     },
 
     buscarPorCoordenadas(
       c: { lat: number; lon: number },
       provincia?: string,
+      signal?: AbortSignal,
     ): Promise<Resultado<Parcela[]>> {
       if (provincia && esProvinciaForal(provincia)) return Promise.resolve(noSoportado)
       const q = new URLSearchParams({
@@ -179,13 +239,46 @@ export function crearClienteCatastro(fetchFn: typeof fetch): ClienteCatastro {
         CoorY: String(c.lat),
         SRS: 'EPSG:4326',
       })
-      return consultar(fetchFn, `${COORDENADAS}Consulta_RCCOOR_Distancia?${q}`, parcelas)
+      return consultar(fetchFn, `${COORDENADAS}Consulta_RCCOOR_Distancia?${q}`, parcelas, signal)
+    },
+
+    async parcelasEnRadio(
+      c: Punto,
+      radioM: number,
+      provincia?: string,
+      signal?: AbortSignal,
+    ): Promise<Resultado<Parcela[]>> {
+      if (provincia && esProvinciaForal(provincia)) return noSoportado
+      const dLat = radioM / M_POR_GRADO
+      const dLon = dLat / Math.cos((c.lat * Math.PI) / 180)
+      const bbox = [c.lat - dLat, c.lon - dLon, c.lat + dLat, c.lon + dLon]
+      const q = new URLSearchParams({
+        service: 'WFS',
+        version: '2.0.0',
+        request: 'GetFeature',
+        typeNames: 'cp:CadastralParcel',
+        srsName: 'EPSG::4326',
+        bbox: bbox.map((x) => x.toFixed(6)).join(','),
+      })
+      const limite = conLimite(TIEMPO_WFS_MS, signal)
+      try {
+        const res = await fetchFn(`${WFS_PARCELAS}?${q}`, { signal: limite.signal })
+        if (!res.ok) return { ok: false, error: { tipo: 'red', mensaje: `HTTP ${res.status}` } }
+        return parcelasGml(await res.text(), c, radioM)
+      } catch (e) {
+        return {
+          ok: false,
+          error: { tipo: 'red', mensaje: e instanceof Error ? e.message : String(e) },
+        }
+      } finally {
+        limite.fin()
+      }
     },
 
     /** Parcela (14 car.) → todos sus inmuebles; RC (20 car.) → ese inmueble. */
-    buscarPorReferencia(refCat: string): Promise<Resultado<Inmueble[]>> {
+    buscarPorReferencia(refCat: string, signal?: AbortSignal): Promise<Resultado<Inmueble[]>> {
       const q = new URLSearchParams({ RefCat: refCat })
-      return consultar(fetchFn, `${CALLEJERO}Consulta_DNPRC?${q}`, inmuebles)
+      return consultar(fetchFn, `${CALLEJERO}Consulta_DNPRC?${q}`, inmuebles, signal)
     },
   }
 }

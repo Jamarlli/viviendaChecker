@@ -33,13 +33,22 @@ export interface NumeroVia {
 export interface ClienteCatastro {
   /** Números de la vía cercanos a `l.numero` (vacío → primeros). */
   buscarNumeros(l: Localizacion): Promise<Resultado<NumeroVia[]>>
-  buscarPorDireccion(l: Localizacion): Promise<Resultado<Inmueble[]>>
+  buscarPorDireccion(l: Localizacion, signal?: AbortSignal): Promise<Resultado<Inmueble[]>>
+  /** Parcelas a ≤ `radioM` (BBOX), ordenadas por distancia. */
+  parcelasEnRadio(
+    c: { lat: number; lon: number },
+    radioM: number,
+    provincia?: string,
+    signal?: AbortSignal,
+  ): Promise<Resultado<Parcela[]>>
+  /** Parcelas a ~25 m (distancia al polígono). */
   buscarPorCoordenadas(
     c: { lat: number; lon: number },
     provincia?: string,
+    signal?: AbortSignal,
   ): Promise<Resultado<Parcela[]>>
   /** Parcela (14 car.) → todos sus inmuebles; RC (20 car.) → ese inmueble. */
-  buscarPorReferencia(refCat: string): Promise<Resultado<Inmueble[]>>
+  buscarPorReferencia(refCat: string, signal?: AbortSignal): Promise<Resultado<Inmueble[]>>
 }
 
 /** Elección del usuario: candidato elegido o RC pegada. */

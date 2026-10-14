@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Anuncio, Inmueble } from '../tipos'
+import { CONCURRENCIA_DNPRC } from './constantes'
 import { emparejar, guardarSeleccion } from './flujo'
 import type {
   Almacen,
@@ -31,6 +32,7 @@ const OTROS = [inmueble('OTRO1'), inmueble('LOCAL', { uso: 'Comercial', planta: 
 
 type Respuestas = {
   direccion?: Resultado<Inmueble[]>
+  radio?: Resultado<Parcela[]>
   coordenadas?: Resultado<Parcela[]>
   referencia?: (ref: string) => Resultado<Inmueble[]>
 }
@@ -46,6 +48,10 @@ function catastroFalso(r: Respuestas = {}) {
     async buscarPorDireccion(l: Localizacion) {
       llamadas.push({ op: 'direccion', arg: l })
       return r.direccion ?? vacio
+    },
+    async parcelasEnRadio(c, radioM, provincia) {
+      llamadas.push({ op: 'radio', arg: { ...c, radioM, provincia } })
+      return r.radio ?? vacio
     },
     async buscarPorCoordenadas(c, provincia) {
       llamadas.push({ op: 'coordenadas', arg: { ...c, provincia } })
@@ -126,11 +132,11 @@ describe('emparejar · dirección', () => {
 
   it('sin resultados y con coords → coords', async () => {
     const c = catastroFalso({
-      coordenadas: ok([parcela('P1', 1)]),
+      radio: ok([parcela('P1', 1)]),
       referencia: () => ok([BUENO]),
     })
     const r = await emparejar({ ...conDireccion, coords: coords() }, deps(c.catastro))
-    expect(c.ops()).toEqual(['direccion', 'coordenadas', 'referencia'])
+    expect(c.ops()).toEqual(['direccion', 'radio', 'referencia'])
     expect(r.ok && r.valor.origen).toBe('coords')
   })
 
@@ -147,9 +153,9 @@ describe('emparejar · dirección', () => {
 })
 
 describe('emparejar · coords', () => {
-  it('sin número → DNPRC de cada parcela cercana', async () => {
+  it('sin número → parcelas a ≤ 250 m y DNPRC de cada una', async () => {
     const c = catastroFalso({
-      coordenadas: ok([parcela('P1', 1), parcela('P2', 5)]),
+      radio: ok([parcela('P2', 5), parcela('P1', 1)]),
       referencia: (pc) => ok(pc === 'P1' ? [BUENO] : OTROS),
     })
     const r = await emparejar(
@@ -157,33 +163,81 @@ describe('emparejar · coords', () => {
       deps(c.catastro),
     )
     expect(c.llamadas[0]).toEqual({
-      op: 'coordenadas',
-      arg: { lat: 40.4, lon: -3.7, provincia: 'Madrid' },
+      op: 'radio',
+      arg: { lat: 40.4, lon: -3.7, radioM: 250, provincia: 'Madrid' },
     })
     expect(c.llamadas.slice(1).map((l) => l.arg)).toEqual(['P1', 'P2'])
     if (!r.ok) throw new Error()
     expect(r.valor.origen).toBe('coords')
-    expect(r.valor.candidatos).toHaveLength(3)
+    // OTROS no caben en ±15 % de 100 m².
+    expect(r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
     expect(r.valor.confianza).toBe('alta')
   })
 
+  it.each<ErrorCatastro>([
+    { tipo: 'red', mensaje: 'x' },
+    { tipo: 'api', mensaje: 'x' },
+    { tipo: 'sinResultados', mensaje: '' },
+  ])('WFS con %j → RCCOOR_Distancia', async (e) => {
+    const c = catastroFalso({
+      radio: err(e),
+      coordenadas: ok([parcela('P1', 1)]),
+      referencia: () => ok([BUENO]),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(c.ops()).toEqual(['radio', 'coordenadas', 'referencia'])
+    expect(c.llamadas[1]?.arg).toEqual({ lat: 40.4, lon: -3.7, provincia: 'Madrid' })
+    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
+  })
+
+  it('con superficie, descarta inmuebles fuera de ±15 % antes de puntuar', async () => {
+    const c = catastroFalso({
+      radio: ok([parcela('P1', 1)]),
+      referencia: () => ok([BUENO, inmueble('GRANDE', { m2: 116 }), inmueble('JUSTO', { m2: 85 })]),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO', 'JUSTO'])
+  })
+
+  it('si ninguno cumple la superficie, puntúa todos', async () => {
+    const c = catastroFalso({ radio: ok([parcela('P1', 1)]), referencia: () => ok(OTROS) })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(r.ok && r.valor.candidatos).toHaveLength(2)
+  })
+
+  it('sin superficie en el anuncio, no filtra', async () => {
+    const c = catastroFalso({ radio: ok([parcela('P1', 1)]), referencia: () => ok(OTROS) })
+    const a = { ...soloCoords, m2Construidos: undefined }
+    const r = await emparejar(a, deps(c.catastro))
+    expect(r.ok && r.valor.candidatos).toHaveLength(2)
+  })
+
+  it('a igual puntuación, primero la parcela más cercana', async () => {
+    const c = catastroFalso({
+      radio: ok([parcela('LEJOS', 200), parcela('CERCA', 3)]),
+      referencia: (pc) => ok([inmueble(pc, { m2: 100, planta: '01', anio: 2000 })]),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['CERCA', 'LEJOS'])
+  })
+
   it('aproximadas → nunca alta', async () => {
-    const c = catastroFalso({ coordenadas: ok([parcela('P1', 1)]), referencia: () => ok([BUENO]) })
+    const c = catastroFalso({ radio: ok([parcela('P1', 1)]), referencia: () => ok([BUENO]) })
     const r = await emparejar({ ...soloCoords, coords: coords(true) }, deps(c.catastro))
     expect(r.ok && r.valor.confianza).toBe('media')
   })
 
-  it('solo las 10 parcelas más cercanas', async () => {
-    const parcelas = Array.from({ length: 12 }, (_, i) => parcela(`P${i}`, 12 - i))
-    const c = catastroFalso({ coordenadas: ok(parcelas), referencia: () => ok([BUENO]) })
+  it('solo las 25 parcelas más cercanas', async () => {
+    const parcelas = Array.from({ length: 30 }, (_, i) => parcela(`P${i}`, 30 - i))
+    const c = catastroFalso({ radio: ok(parcelas), referencia: () => ok([BUENO]) })
     await emparejar(soloCoords, deps(c.catastro))
     const consultadas = c.llamadas.filter((l) => l.op === 'referencia').map((l) => l.arg)
-    expect(consultadas).toEqual(['P11', 'P10', 'P9', 'P8', 'P7', 'P6', 'P5', 'P4', 'P3', 'P2'])
+    expect(consultadas).toEqual(Array.from({ length: 25 }, (_, i) => `P${29 - i}`))
   })
 
   it('una parcela falla → se descarta y sigue con las demás', async () => {
     const c = catastroFalso({
-      coordenadas: ok([parcela('P1', 1), parcela('P2', 2), parcela('P3', 3)]),
+      radio: ok([parcela('P1', 1), parcela('P2', 2), parcela('P3', 3)]),
       referencia: (pc) =>
         pc === 'P1'
           ? err({ tipo: 'api', codigo: '3', mensaje: 'x' })
@@ -195,17 +249,65 @@ describe('emparejar · coords', () => {
     expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
   })
 
-  it('fallan todas → error', async () => {
+  it('fallan todas las del WFS → pasada de ~25 m', async () => {
     const c = catastroFalso({
-      coordenadas: ok([parcela('P1', 1), parcela('P2', 2)]),
+      radio: ok([parcela('P1', 1), parcela('P2', 2)]),
+      coordenadas: ok([parcela('C1', 1)]),
+      referencia: (pc) => (pc === 'C1' ? ok([BUENO]) : err({ tipo: 'red', mensaje: 'x' })),
+    })
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(c.ops()).toEqual(['radio', 'referencia', 'referencia', 'coordenadas', 'referencia'])
+    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO'])
+  })
+
+  it('fallan todas y la pasada de ~25 m no da nada → error', async () => {
+    const c = catastroFalso({
+      radio: ok([parcela('P1', 1), parcela('P2', 2)]),
       referencia: (pc) => (pc === 'P1' ? vacio : err({ tipo: 'red', mensaje: 'x' })),
     })
     const r = await emparejar(soloCoords, deps(c.catastro))
     expect(r).toEqual(err({ tipo: 'red', mensaje: 'x' }))
   })
 
+  it(`DNPRC con como mucho ${CONCURRENCIA_DNPRC} a la vez`, async () => {
+    let activas = 0
+    let maximo = 0
+    const c = catastroFalso({
+      radio: ok(Array.from({ length: 20 }, (_, i) => parcela(`P${i}`, i))),
+    })
+    c.catastro.buscarPorReferencia = async () => {
+      maximo = Math.max(maximo, ++activas)
+      await new Promise((r) => setTimeout(r, 1))
+      activas--
+      return ok([BUENO])
+    }
+    const r = await emparejar(soloCoords, deps(c.catastro))
+    expect(maximo).toBe(CONCURRENCIA_DNPRC)
+    expect(r.ok && r.valor.candidatos).toHaveLength(20)
+  })
+
+  it('la señal llega al Catastro; abortada, no degrada ni sigue', async () => {
+    const ctrl = new AbortController()
+    const c = catastroFalso({ radio: ok([parcela('P1', 1), parcela('P2', 2)]) })
+    const vistas: (AbortSignal | undefined)[] = []
+    const radio = c.catastro.parcelasEnRadio
+    c.catastro.parcelasEnRadio = (co, m, p, s) => {
+      vistas.push(s)
+      return radio(co, m, p, s)
+    }
+    c.catastro.buscarPorReferencia = async (_, s) => {
+      vistas.push(s)
+      ctrl.abort()
+      return err({ tipo: 'red', mensaje: 'abortado' })
+    }
+    const r = await emparejar(soloCoords, deps(c.catastro), ctrl.signal)
+    expect(vistas).toEqual([ctrl.signal, ctrl.signal])
+    expect(c.ops()).toEqual(['radio'])
+    expect(r.ok).toBe(false)
+  })
+
   it('todas sin inmuebles → ninguna', async () => {
-    const c = catastroFalso({ coordenadas: ok([parcela('P1', 1)]) })
+    const c = catastroFalso({ radio: ok([parcela('P1', 1)]) })
     const r = await emparejar(soloCoords, deps(c.catastro))
     expect(r).toEqual(ok({ candidatos: [], confianza: 'ninguna', origen: 'coords' }))
   })
@@ -238,7 +340,10 @@ describe('emparejar · errores', () => {
   })
 
   it('coords con error → se propaga', async () => {
-    const c = catastroFalso({ coordenadas: err({ tipo: 'noSoportado' }) })
+    const c = catastroFalso({
+      radio: err({ tipo: 'noSoportado' }),
+      coordenadas: err({ tipo: 'noSoportado' }),
+    })
     expect(await emparejar(soloCoords, deps(c.catastro))).toEqual(err({ tipo: 'noSoportado' }))
   })
 })

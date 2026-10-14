@@ -15,11 +15,18 @@ const EPSILON = 1e-9
 
 type Senal = keyof typeof PESOS
 
+/** `undefined` si el anuncio no da superficie. */
+export function coincideSuperficie(anuncio: Anuncio, inmueble: Inmueble): boolean | undefined {
+  const m2 = anuncio.m2Construidos ?? (anuncio.m2Utiles && anuncio.m2Utiles * FACTOR_UTILES)
+  if (!m2) return undefined
+  return Math.abs(inmueble.m2 - m2) <= m2 * TOLERANCIA_SUPERFICIE + EPSILON
+}
+
 export function puntuar(anuncio: Anuncio, inmueble: Inmueble): number {
   const coincide: Partial<Record<Senal, boolean>> = {}
 
-  const m2 = anuncio.m2Construidos ?? (anuncio.m2Utiles && anuncio.m2Utiles * FACTOR_UTILES)
-  if (m2) coincide.superficie = Math.abs(inmueble.m2 - m2) <= m2 * TOLERANCIA_SUPERFICIE + EPSILON
+  const superficie = coincideSuperficie(anuncio, inmueble)
+  if (superficie !== undefined) coincide.superficie = superficie
 
   const planta = normalizarPlanta(anuncio.planta)
   if (planta && planta !== 'otro') coincide.planta = planta === normalizarPlanta(inmueble.planta)

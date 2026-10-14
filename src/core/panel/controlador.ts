@@ -35,6 +35,7 @@ export function crearControlador(deps: DepsControlador) {
   const enCurso = new Map<number, { id: string; promesa: Promise<void> }>()
   // Cada análisis o `olvidar` invalida los anteriores de la pestaña.
   const versiones = new Map<number, number>()
+  const cancelar = new Map<number, AbortController>()
 
   const fijar = (tab: number, estado: EstadoPanel) => {
     estados.set(tab, estado)
@@ -42,6 +43,8 @@ export function crearControlador(deps: DepsControlador) {
   }
 
   const nuevaVersion = (tab: number) => {
+    cancelar.get(tab)?.abort()
+    cancelar.delete(tab)
     const v = (versiones.get(tab) ?? 0) + 1
     versiones.set(tab, v)
     return v
@@ -54,7 +57,9 @@ export function crearControlador(deps: DepsControlador) {
     const v = nuevaVersion(tab)
     anuncios.set(tab, anuncio)
     fijar(tab, { tipo: 'cargando' })
-    const promesa = analizar(anuncio, deps).then((analisis) => {
+    const ctrl = new AbortController()
+    cancelar.set(tab, ctrl)
+    const promesa = analizar(anuncio, deps, ctrl.signal).then((analisis) => {
       if (versiones.get(tab) === v) fijar(tab, { tipo: 'analisis', analisis })
     })
     enCurso.set(tab, { id: anuncio.id, promesa })

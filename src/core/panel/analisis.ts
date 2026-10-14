@@ -20,14 +20,18 @@ export interface DepsAnalisis extends DepsEmparejamiento {
   impuestos: TablaImpuestos
 }
 
-export async function analizar(anuncio: Anuncio, deps: DepsAnalisis): Promise<Analisis> {
+export async function analizar(
+  anuncio: Anuncio,
+  deps: DepsAnalisis,
+  signal?: AbortSignal,
+): Promise<Analisis> {
   const base = {
     anuncio,
     discrepancias: [],
     alertas: detectarAlertas(anuncio.descripcion),
     gastos: calcularGastos(anuncio, deps.impuestos),
   }
-  const r = await emparejar(anuncio, deps)
+  const r = await emparejar(anuncio, deps, signal)
   if (!r.ok) return { ...base, error: r.error }
 
   const e = r.valor
@@ -36,7 +40,7 @@ export async function analizar(anuncio: Anuncio, deps: DepsAnalisis): Promise<An
 
   const parcela =
     e.origen === 'manual'
-      ? await inmueblesParcela(elegido, deps)
+      ? await inmueblesParcela(elegido, deps, signal)
       : e.candidatos.map((c) => c.inmueble)
   return {
     ...base,
@@ -46,7 +50,11 @@ export async function analizar(anuncio: Anuncio, deps: DepsAnalisis): Promise<An
 }
 
 // La RC confirmada trae un solo inmueble; los anexos están en el resto de la parcela.
-async function inmueblesParcela(i: Inmueble, { catastro }: DepsAnalisis): Promise<Inmueble[]> {
-  const r = await catastro.buscarPorReferencia(i.rc.slice(0, 14))
+async function inmueblesParcela(
+  i: Inmueble,
+  { catastro }: DepsAnalisis,
+  signal?: AbortSignal,
+): Promise<Inmueble[]> {
+  const r = await catastro.buscarPorReferencia(i.rc.slice(0, 14), signal)
   return r.ok ? r.valor : [i]
 }

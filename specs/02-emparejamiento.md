@@ -12,11 +12,12 @@ Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' |
 
 ## Flujo
 0. Selección manual guardada para el id del anuncio → `DNPRC` de esa RC; `origen: 'manual'`, confianza `alta`.
-1. Parcelas: con vía + número (+ provincia y municipio) → `DNPLOC`; si no (o sin resultados), con coords → `RCCOOR_Distancia`; si no → `ninguna`.
-2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.) Por coords, solo las 10 parcelas más cercanas; la que falla se descarta, y solo es error si fallan todas.
-3. Puntuar cada inmueble y ordenar.
+1. Parcelas: con vía + número (+ provincia y municipio) → `DNPLOC`; si no (o sin resultados), con coords → parcelas a ≤ 250 m (WFS INSPIRE); si el WFS falla (red, API, vacío o > 15 s) → `RCCOOR_Distancia` (~25 m); si no → `ninguna`.
+2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.) Por coords, solo las 25 parcelas más cercanas, como mucho 5 a la vez; la que falla se descarta. Si fallan todas las del WFS, se repite con `RCCOOR_Distancia`; solo es error si tampoco da inmuebles.
+3. Por coords y con superficie en el anuncio, se quedan los inmuebles dentro de ±15 % (la misma regla que puntúa); si no queda ninguno, se puntúan todos.
+4. Puntuar cada inmueble y ordenar. A igual puntuación, se mantiene el orden por distancia de la parcela.
 
-- `emparejar(anuncio, { catastro, almacen })` devuelve `Resultado<Emparejamiento>`; nunca lanza. `sinResultados` → `ninguna`; `noSoportado`, `red` y `api` → error.
+- `emparejar(anuncio, { catastro, almacen }, signal?)` devuelve `Resultado<Emparejamiento>`; nunca lanza. `sinResultados` → `ninguna`; `noSoportado`, `red` y `api` → error. Con `signal` abortada no se degrada ni se lanzan más consultas; el panel aborta el análisis al cambiar de anuncio u olvidar la pestaña.
 - `Sigla` y `Calle` salen de la vía del anuncio: "Calle de Alcalá" → `CL` `ALCALA`. Se quita el artículo tras el tipo (de, del, de la, d', de l', dels, de les, do, da, dos, das…); sin tipo reconocible → `CL`. Tipos en catalán, valenciano y gallego → sigla castellana (Carrer → `CL`, Avinguda → `AV`, Plaça/Praza → `PZ`, Passeig → `PS`, Travessera → `TR`, Camí/Camiño → `CM`); Rúa → `RU` (verificado con la API).
 - Selección manual: RC de 20 car. (espacios y minúsculas se normalizan), guardada en local por id de anuncio.
 
@@ -42,7 +43,8 @@ Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre
 
 ## Criterios
 - [ ] Con dirección exacta y datos completos → `alta` y RC correcta (fixtures).
-- [ ] Sin número pero con coords → candidatos de parcelas cercanas.
+- [ ] Sin número pero con coords → candidatos de parcelas a ≤ 250 m, las más cercanas primero.
+- [ ] WFS caído → parcelas de `RCCOOR_Distancia`.
 - [ ] Coords aproximadas → nunca `alta`.
 - [ ] Inmuebles no residenciales se puntúan, no se descartan (para detectar "local como vivienda").
 - [ ] El usuario puede elegir otro candidato o pegar una RC; se guarda por id de anuncio y tiene prioridad (`origen: 'manual'`).
@@ -57,6 +59,8 @@ Formato real (fixtures en `fixtures/catastro/`):
 - `Sigla` es obligatoria: vacía → "no existe ningún inmueble".
 - Número inexistente → error 43 con `numerero` (números cercanos); se ignoran.
 - `RCCOOR_Distancia` devuelve parcelas (14 car.) con `dis` en metros; en forales, lista vacía.
+- `parcelasEnRadio(coords, radioM, provincia?)`: WFS INSPIRE `CadastralParcel`, `GetFeature` por BBOX (cuadrado de lado 2·radio, EPSG:4326, orden lat,lon). GML (ISO-8859-1, solo se leen campos ASCII): `nationalCadastralReference` (14 car.) y `referencePoint` (`gml:pos` lat lon). `distancia`: metros del punto a `referencePoint`; se quedan las de `distancia ≤ radioM`, ordenadas; `direccion` vacía. Se parsea con expresiones regulares: el service worker no tiene `DOMParser`. Sin parcelas → `ExceptionReport` "No records founded" → `sinResultados`; otra excepción → `api`. Sin respuesta en 15 s → `red` ("Tiempo agotado"). Todos los métodos aceptan un `AbortSignal` opcional.
+- Coste medido (Madrid centro, 250 m): ~420 parcelas, ~0,9 MB, 9–11 s. Más de ~1 km² tarda > 1 min: no ampliar el radio sin medir. El WFS de edificios (`wfsBU`) trae superficie total y nº de viviendas del edificio (no del inmueble) y tarda ~45 s y 2 MB: no se usa.
 - Sin `ant` (solares) → `anio: 0`. `pt`/`pu` se copian tal cual (`00`, `-1`, `OD`…).
 
 ## Dudas

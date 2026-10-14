@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-import { crearClienteCatastro, esProvinciaForal } from './cliente'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { crearClienteCatastro, esProvinciaForal, TIEMPO_WFS_MS } from './cliente'
 
 const fixture = (nombre: string) => readFileSync(`fixtures/catastro/${nombre}.json`, 'utf8')
 
@@ -137,6 +137,119 @@ describe('buscarPorCoordenadas (RCCOOR_Distancia)', () => {
       { lat: 43.263, lon: -2.935 },
       'Bizkaia',
     )
+    expect(r).toEqual({ ok: false, error: { tipo: 'noSoportado' } })
+    expect(f.urls).toHaveLength(0)
+  })
+})
+
+const xml = (nombre: string) => readFileSync(`fixtures/catastro/${nombre}.xml`, 'utf8')
+
+describe('parcelasEnRadio (WFS INSPIRE)', () => {
+  const sol = { lat: 40.4168, lon: -3.70375 }
+
+  it('pide un BBOX de lado 2·radio en EPSG:4326 (lat,lon)', async () => {
+    const f = fetchFalso(xml('wfs-cp-parcelas'))
+    await crearClienteCatastro(f.fn).parcelasEnRadio(sol, 250)
+    const url = new URL(f.urls[0] ?? '')
+    expect(url.origin + url.pathname).toBe('https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx')
+    const q = Object.fromEntries(url.searchParams)
+    expect(q).toMatchObject({
+      service: 'WFS',
+      request: 'GetFeature',
+      typeNames: 'cp:CadastralParcel',
+      srsName: 'EPSG::4326',
+    })
+    const [latMin = 0, lonMin = 0, latMax = 0, lonMax = 0] = (q.bbox ?? '').split(',').map(Number)
+    const coseno = Math.cos((sol.lat * Math.PI) / 180)
+    expect(((latMax - latMin) * 111320) / 2).toBeCloseTo(250, -1)
+    expect(((lonMax - lonMin) * 111320 * coseno) / 2).toBeCloseTo(250, -1)
+    expect((latMax + latMin) / 2).toBeCloseTo(sol.lat, 5)
+  })
+
+  it('devuelve las parcelas (14 car.) ordenadas por distancia al punto de referencia', async () => {
+    const f = fetchFalso(xml('wfs-cp-parcelas'))
+    const r = await crearClienteCatastro(f.fn).parcelasEnRadio(sol, 250)
+    if (!r.ok) throw new Error('esperaba ok')
+    expect(r.valor).toHaveLength(17)
+    expect(r.valor[0]).toEqual({ pc: '0444101VK4704C', direccion: '', distancia: 51 })
+    expect(r.valor.every((p) => /^[0-9A-Z]{14}$/.test(p.pc))).toBe(true)
+    const ds = r.valor.map((p) => p.distancia)
+    expect(ds).toEqual([...ds].sort((a, b) => a - b))
+  })
+
+  it('sin parcelas → sinResultados', async () => {
+    const r = await crearClienteCatastro(fetchFalso(xml('wfs-cp-vacia')).fn).parcelasEnRadio(
+      sol,
+      250,
+    )
+    expect(r.ok === false && r.error.tipo).toBe('sinResultados')
+  })
+
+  it('otra excepción → api', async () => {
+    const r = await crearClienteCatastro(fetchFalso(xml('wfs-cp-error')).fn).parcelasEnRadio(
+      sol,
+      250,
+    )
+    expect(r).toEqual({
+      ok: false,
+      error: { tipo: 'api', mensaje: 'One or more BBOX values are null' },
+    })
+  })
+
+  it('respuesta no GML → api; HTTP 500 → red', async () => {
+    const r1 = await crearClienteCatastro(fetchFalso('<html/>').fn).parcelasEnRadio(sol, 250)
+    expect(r1.ok === false && r1.error.tipo).toBe('api')
+    const r2 = await crearClienteCatastro(fetchFalso('', 500).fn).parcelasEnRadio(sol, 250)
+    expect(r2.ok === false && r2.error.tipo).toBe('red')
+  })
+
+  it('descarta parcelas a más de radioM', async () => {
+    const r = await crearClienteCatastro(fetchFalso(xml('wfs-cp-parcelas')).fn).parcelasEnRadio(
+      sol,
+      60,
+    )
+    if (!r.ok) throw new Error('esperaba ok')
+    expect(r.valor.length).toBeGreaterThan(0)
+    expect(r.valor.length).toBeLessThan(17)
+    expect(r.valor.every((p) => p.distancia <= 60)).toBe(true)
+  })
+
+  describe('cortes', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    // fetch que solo termina si se aborta.
+    const colgado = (async (_: unknown, init?: RequestInit) =>
+      new Promise((_, rechazar) =>
+        init?.signal?.addEventListener('abort', () => rechazar(init.signal?.reason)),
+      )) as typeof fetch
+
+    it('sin respuesta en TIEMPO_WFS_MS → red', async () => {
+      vi.useFakeTimers()
+      const p = crearClienteCatastro(colgado).parcelasEnRadio(sol, 250)
+      await vi.advanceTimersByTimeAsync(TIEMPO_WFS_MS)
+      expect(await p).toEqual({ ok: false, error: { tipo: 'red', mensaje: 'Tiempo agotado' } })
+    })
+
+    it('señal abortada → red, sin esperar', async () => {
+      const ctrl = new AbortController()
+      const p = crearClienteCatastro(colgado).parcelasEnRadio(sol, 250, undefined, ctrl.signal)
+      ctrl.abort()
+      expect(await p).toMatchObject({ ok: false, error: { tipo: 'red' } })
+    })
+
+    it('la señal llega al fetch del callejero', async () => {
+      const ctrl = new AbortController()
+      const p = crearClienteCatastro(colgado).buscarPorReferencia('2853604VK4725D', ctrl.signal)
+      ctrl.abort()
+      expect(await p).toMatchObject({ ok: false, error: { tipo: 'red' } })
+    })
+  })
+
+  it('provincia foral → noSoportado', async () => {
+    const f = fetchFalso('')
+    const r = await crearClienteCatastro(f.fn).parcelasEnRadio(sol, 250, 'Navarra')
     expect(r).toEqual({ ok: false, error: { tipo: 'noSoportado' } })
     expect(f.urls).toHaveLength(0)
   })
