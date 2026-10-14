@@ -73,20 +73,26 @@ export function ordenarCandidatos(
   inmuebles: Inmueble[],
   distancias: Map<Inmueble, number> = new Map(),
 ): Candidato[] {
-  const misma = (c: Candidato) => Number(coincidePlanta(anuncio, c.inmueble) ?? false)
   return inmuebles
-    .map((inmueble): Candidato => {
-      const c = { inmueble, puntuacion: puntuar(anuncio, inmueble) }
+    .map((inmueble) => {
+      const c: Candidato = { inmueble, puntuacion: puntuar(anuncio, inmueble) }
       const distancia = distancias.get(inmueble)
-      return distancia === undefined ? c : { ...c, distancia }
+      if (distancia !== undefined) c.distancia = distancia
+      return { c, misma: Number(coincidePlanta(anuncio, inmueble) ?? false) }
     })
     .sort(
       (a, b) =>
-        misma(b) - misma(a) ||
-        mayor(a.puntuacion, b.puntuacion) ||
-        (a.distancia ?? Infinity) - (b.distancia ?? Infinity) ||
-        0,
+        b.misma - a.misma ||
+        mayor(a.c.puntuacion, b.c.puntuacion) ||
+        porDistancia(a.c.distancia, b.c.distancia),
     )
+    .map(({ c }) => c)
+}
+
+/** Sin distancia, al final; dos sin distancia, empate (evita Infinity − Infinity = NaN). */
+function porDistancia(a?: number, b?: number): number {
+  if (a === undefined || b === undefined) return a === b ? 0 : a === undefined ? 1 : -1
+  return a - b
 }
 
 /** `candidatos` en el orden de `ordenarCandidatos`: el 1.º es el primero. */

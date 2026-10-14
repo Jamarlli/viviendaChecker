@@ -15,7 +15,7 @@ Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' |
 1. Parcelas: con vía + número (+ provincia y municipio) → `DNPLOC`; si no (o sin resultados), con coords → parcelas a ≤ 250 m (WFS INSPIRE); si el WFS falla (red, API, vacío o > 15 s) → `RCCOOR_Distancia` (~25 m); si no → `ninguna`.
 2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.) Por coords, solo las 25 parcelas más cercanas, como mucho 5 a la vez; la que falla se descarta. Si fallan todas las del WFS, se repite con `RCCOOR_Distancia`; solo es error si tampoco da inmuebles.
 3. Por coords y con superficie en el anuncio, se quedan los inmuebles dentro de ±15 % (la misma regla que puntúa); si no queda ninguno, se puntúan todos.
-4. Puntuar cada inmueble y ordenar: si el anuncio indica planta, primero los de esa planta (ninguno de otra queda por delante); luego por puntuación; a igual puntuación, por distancia a la parcela (sin distancia, al final).
+4. Puntuar cada inmueble y ordenar: si el anuncio indica planta (o es ático sin planta → `atico`), primero los de esa planta (ninguno de otra queda por delante); luego por puntuación; a igual puntuación, por distancia a la parcela (sin distancia, al final).
 
 - `emparejar(anuncio, { catastro, almacen }, signal?)` devuelve `Resultado<Emparejamiento>`; nunca lanza. `sinResultados` → `ninguna`; `noSoportado`, `red` y `api` → error. Con `signal` abortada no se degrada ni se lanzan más consultas; el panel aborta el análisis al cambiar de anuncio u olvidar la pestaña.
 - `Sigla` y `Calle` salen de la vía del anuncio: "Calle de Alcalá" → `CL` `ALCALA`. Se quita el artículo tras el tipo (de, del, de la, d', de l', dels, de les, do, da, dos, das…); sin tipo reconocible → `CL`. Tipos en catalán, valenciano y gallego → sigla castellana (Carrer → `CL`, Avinguda → `AV`, Plaça/Praza → `PZ`, Passeig → `PS`, Travessera → `TR`, Camí/Camiño → `CM`); Rúa → `RU` (verificado con la API).
@@ -30,7 +30,7 @@ Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' |
 | Uso residencial | 0,10 |
 
 Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre los pesos disponibles). Puntuación = Σ pesos obtenidos (− los restados) / Σ pesos evaluados, mínimo 0.
-- Límites inclusivos (±15 %, ±5 años; resta desde 11 años de diferencia). Año 0 en el Catastro (sin dato) → ni suma ni resta.
+- Límites inclusivos (±15 %, ±5 años; resta desde 11 años de diferencia). Año 0 en el Catastro (sin dato) → ni suma ni resta, pero su peso cuenta en el denominador.
 - Ático (`tipo: 'atico'`) sin planta → planta `atico`.
 - Si hay construida y útil, se usa la construida.
 - El uso se evalúa siempre: todo anuncio ofrece vivienda.
@@ -38,7 +38,7 @@ Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre
 
 ## Confianza
 1.º y 2.º según el orden del flujo (paso 4).
-- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º (sin 2.º, ventaja total). Con coords aproximadas, como máximo `media`.
+- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º (sin 2.º, ventaja total). La ventaja puede ser negativa (2.º de otra planta con más puntuación): entonces no hay `alta`. Con coords aproximadas, como máximo `media`.
 - `media`: 1.º ≥ 0,6 y (ventaja ≥ 0,1 o ≤ 3 empatados en cabeza: los primeros con la misma puntuación que el 1.º, incluido).
 - `baja`: resto.
 - `ninguna`: sin candidatos.

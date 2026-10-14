@@ -75,7 +75,7 @@ describe('puntuar', () => {
     [1990, 0],
     [2011, -0.1],
     [1989, -0.1],
-  ])('año %i frente a 2000: ±5 suma, > 10 resta (%d)', (anio, obtenido) => {
+  ])('año %i frente a 2000: ±5 suma, > 10 resta (%s)', (anio, obtenido) => {
     // Con superficie (0,45) para ver la resta.
     const a = anuncio({ m2Construidos: 100, anio: 2000 })
     expect(puntuar(a, inmueble({ anio, uso: 'x' }))).toBeCloseTo((0.45 + obtenido) / 0.65)

@@ -103,7 +103,7 @@ No hay verdad de terreno: no se ha verificado en la Sede del Catastro y el anunc
 
 ### Tras #30 (WFS a 250 m, 25 parcelas, filtro ±15 %)
 
-Las tablas de arriba ya son con #30; lo anterior de este análisis describe #26.
+Lo anterior de este análisis describe #26; esta sección, #30. Las tablas de arriba son de #33 (sección siguiente).
 
 | | #26 (RCCOOR ~25 m, 10 parcelas) | #30 (WFS 250 m, 25 parcelas) |
 |---|---|---|
@@ -118,7 +118,7 @@ Las tablas de arriba ya son con #30; lo anterior de este análisis describe #26.
 
 ### Tras #33 (pesos, orden por planta, `media` exigente)
 
-Las tablas de arriba ya son con #33.
+Las tablas de arriba son de esta versión (#33).
 
 | | #30 | #33 |
 |---|---|---|
