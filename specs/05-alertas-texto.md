@@ -21,5 +21,6 @@ Alerta { tipo: 'ocupado' | 'subasta' | 'nudaPropiedad' | 'alquilado' | 'protecci
 ## Criterios
 - [ ] Normaliza (minúsculas, sin tildes) antes de buscar.
 - [ ] Ignora negaciones cercanas: "no está ocupado", "libre de ocupantes", "sin inquilinos".
-- [ ] Cada alerta cita la frase que la activa.
+- [ ] Cada alerta cita la oración original (con tildes) que la activa.
+- [ ] Una alerta por tipo como máximo.
 - [ ] Corpus de pruebas con positivos y negativos reales por tipo.
