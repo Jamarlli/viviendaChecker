@@ -1,6 +1,7 @@
 import type {
   ClienteCatastro,
   Localizacion,
+  NumeroVia,
   Parcela,
   Resultado,
 } from '../../core/emparejamiento/puertos'
@@ -9,6 +10,7 @@ import type { Inmueble } from '../../core/tipos'
 export type {
   ErrorCatastro,
   Localizacion,
+  NumeroVia,
   Parcela,
   Resultado,
 } from '../../core/emparejamiento/puertos'
@@ -77,6 +79,18 @@ function parcelas(r: Json): Parcela[] {
     .sort((a, b) => a.distancia - b.distancia)
 }
 
+function numeros(r: Json): NumeroVia[] {
+  const vistos = new Set<string>()
+  return aLista<Json>(r.nump)
+    .map((n) => ({ numero: `${n.num?.pnp ?? ''}${(n.num?.plp ?? '').trim()}`, pc: rc(n.pc) }))
+    .filter((n) => {
+      const clave = `${n.pc}|${n.numero}`
+      if (vistos.has(clave)) return false
+      vistos.add(clave)
+      return true
+    })
+}
+
 async function consultar<T>(
   fetchFn: typeof fetch,
   url: string,
@@ -102,29 +116,47 @@ async function consultar<T>(
     return { ok: false, error: { tipo: 'api', mensaje: 'Respuesta no válida' } }
   }
 
-  const err = aLista<Json>(r.lerr)[0]
-  if (err) {
-    const codigo = String(err.cod)
-    const mensaje = String(err.des ?? '')
-    return SIN_RESULTADOS.has(codigo)
-      ? { ok: false, error: { tipo: 'sinResultados', mensaje } }
-      : { ok: false, error: { tipo: 'api', codigo, mensaje } }
+  // `ObtenerNumerero` envuelve la lista en `err`.
+  const err = aLista<Json>(r.lerr?.err ?? r.lerr)[0]
+  if (err && !SIN_RESULTADOS.has(String(err.cod))) {
+    return {
+      ok: false,
+      error: { tipo: 'api', codigo: String(err.cod), mensaje: String(err.des ?? '') },
+    }
   }
 
+  // "No encontrado" puede traer resultados cercanos (números de `ObtenerNumerero`).
+  let valor: T[]
   try {
-    const valor = extraer(r)
-    if (valor.length === 0) {
-      return { ok: false, error: { tipo: 'sinResultados', mensaje: 'Sin resultados' } }
-    }
-    return { ok: true, valor }
+    valor = extraer(r)
   } catch {
     return { ok: false, error: { tipo: 'api', mensaje: 'Formato inesperado' } }
   }
+  if (valor.length === 0) {
+    return {
+      ok: false,
+      error: { tipo: 'sinResultados', mensaje: err ? String(err.des ?? '') : 'Sin resultados' },
+    }
+  }
+  return { ok: true, valor }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function crearClienteCatastro(fetchFn: typeof fetch): ClienteCatastro {
   return {
+    buscarNumeros(l: Localizacion): Promise<Resultado<NumeroVia[]>> {
+      if (esProvinciaForal(l.provincia)) return Promise.resolve(noSoportado)
+      const q = new URLSearchParams({
+        Provincia: l.provincia,
+        Municipio: l.municipio,
+        TipoVia: l.sigla,
+        NomVia: l.calle,
+        // Vacío da error 41; 0 no existe y devuelve los primeros.
+        Numero: l.numero || '0',
+      })
+      return consultar(fetchFn, `${CALLEJERO}ObtenerNumerero?${q}`, numeros)
+    },
+
     buscarPorDireccion(l: Localizacion): Promise<Resultado<Inmueble[]>> {
       if (esProvinciaForal(l.provincia)) return Promise.resolve(noSoportado)
       const q = new URLSearchParams({

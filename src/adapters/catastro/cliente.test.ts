@@ -214,6 +214,76 @@ describe('errores', () => {
   })
 })
 
+describe('buscarNumeros (ObtenerNumerero)', () => {
+  it('construye la URL con TipoVia y NomVia', async () => {
+    const f = fetchFalso(fixture('numerero-alcala-100'))
+    await crearClienteCatastro(f.fn).buscarNumeros(alcala100)
+    const url = new URL(f.urls[0] ?? '')
+    expect(url.pathname).toMatch(/COVCCallejero\.svc\/json\/ObtenerNumerero$/)
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      Provincia: 'MADRID',
+      Municipio: 'MADRID',
+      TipoVia: 'CL',
+      NomVia: 'ALCALA',
+      Numero: '100',
+    })
+  })
+
+  it('número existente → ese número y su parcela', async () => {
+    const f = fetchFalso(fixture('numerero-alcala-100'))
+    const r = await crearClienteCatastro(f.fn).buscarNumeros(alcala100)
+    expect(r).toEqual({ ok: true, valor: [{ numero: '100', pc: '2853604VK4725D' }] })
+  })
+
+  it('número inexistente → números cercanos sin duplicados', async () => {
+    const f = fetchFalso(fixture('numerero-alcala-103'))
+    const r = await crearClienteCatastro(f.fn).buscarNumeros({ ...alcala100, numero: '103' })
+    if (!r.ok) throw new Error('esperaba ok')
+    expect(r.valor.map((n) => n.numero)).toEqual([
+      '98',
+      '99',
+      '100',
+      '101',
+      '102',
+      '104',
+      '105',
+      '106',
+      '107',
+      '108',
+    ])
+  })
+
+  it('sin número → consulta 0 (primeros números)', async () => {
+    const f = fetchFalso(fixture('numerero-alcala-0'))
+    const r = await crearClienteCatastro(f.fn).buscarNumeros({ ...alcala100, numero: '' })
+    expect(new URL(f.urls[0] ?? '').searchParams.get('Numero')).toBe('0')
+    if (!r.ok) throw new Error('esperaba ok')
+    expect(r.valor).toHaveLength(4)
+  })
+
+  it('sin cercanos → sinResultados', async () => {
+    const f = fetchFalso(fixture('numerero-alcala-9999'))
+    const r = await crearClienteCatastro(f.fn).buscarNumeros({ ...alcala100, numero: '9999' })
+    expect(r).toMatchObject({ ok: false, error: { tipo: 'sinResultados' } })
+  })
+
+  it('vía inexistente → sinResultados', async () => {
+    const f = fetchFalso(fixture('numerero-via-inexistente'))
+    const r = await crearClienteCatastro(f.fn).buscarNumeros(alcala100)
+    expect(r).toMatchObject({ ok: false, error: { tipo: 'sinResultados' } })
+  })
+
+  it('provincia foral → noSoportado sin llamar a la red', async () => {
+    const f = fetchFalso('')
+    const r = await crearClienteCatastro(f.fn).buscarNumeros({
+      ...alcala100,
+      provincia: 'Navarra',
+    })
+    expect(r).toEqual({ ok: false, error: { tipo: 'noSoportado' } })
+    expect(f.urls).toHaveLength(0)
+  })
+})
+
 describe('esProvinciaForal', () => {
   it.each([
     'Álava',

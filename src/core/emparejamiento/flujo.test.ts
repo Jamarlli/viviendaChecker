@@ -39,6 +39,10 @@ type Respuestas = {
 function catastroFalso(r: Respuestas = {}) {
   const llamadas: { op: string; arg: unknown }[] = []
   const catastro: ClienteCatastro = {
+    async buscarNumeros(l) {
+      llamadas.push({ op: 'numeros', arg: l })
+      return vacio
+    },
     async buscarPorDireccion(l: Localizacion) {
       llamadas.push({ op: 'direccion', arg: l })
       return r.direccion ?? vacio
