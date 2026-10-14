@@ -129,6 +129,7 @@ export function extraerAnuncio(doc: Document, url: string): Anuncio | null {
   const menciones = [...basicas, features, desc].join('\n')
   const planta = (sec.get('Edificio') ?? []).map(parsearPlanta).find(Boolean)
   const anio = basicas.map((l) => /Construido en (\d{4})/.exec(l)?.[1]).find(Boolean)
+  const plaza = basicas.find((l) => /^Plaza de garaje/.test(l))
 
   return {
     portal: 'idealista',
@@ -145,5 +146,7 @@ export function extraerAnuncio(doc: Document, url: string): Anuncio | null {
     descripcion: desc,
     mencionaTrastero: /trastero/i.test(menciones),
     mencionaGaraje: /garaje|parking|aparcamiento/i.test(menciones),
+    garaje: plaza ? (/incluida en el precio/.test(plaza) ? 'incluido' : 'opcional') : undefined,
+    trastero: basicas.includes('Trastero') || undefined,
   }
 }

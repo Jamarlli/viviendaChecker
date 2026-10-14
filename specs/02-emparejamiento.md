@@ -5,17 +5,18 @@ Dado un `Anuncio`, encuentra los inmuebles catastrales candidatos y su confianza
 ## Modelo
 ```ts
 Inmueble { rc: string; uso: string; m2: number; anio: number; planta: string; puerta: string; direccion: string }
-Candidato { inmueble: Inmueble; puntuacion: number /* 0-1 */ }
-Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' | 'ninguna'; origen: 'direccion' | 'coords' | 'manual' | 'ninguno' }
+Candidato { inmueble: Inmueble; puntuacion: number /* 0-1 */; distancia?: number /* m a la parcela, solo por coords */ }
+Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' | 'ninguna'; origen: 'direccion' | 'coords' | 'manual' | 'ninguno'; leidos?: Inmueble[] }
 ```
+`leidos`: solo por coords; todos los inmuebles leídos, también los que el paso 3 descarta (p. ej. garajes). Discrepancias los usa como parcela para buscar anexos.
 `origen: 'ninguno'`: sin dirección completa ni coords; no se consultó el Catastro.
 
 ## Flujo
 0. Selección manual guardada para el id del anuncio → `DNPRC` de esa RC; `origen: 'manual'`, confianza `alta`.
 1. Parcelas: con vía + número (+ provincia y municipio) → `DNPLOC`; si no (o sin resultados), con coords → parcelas a ≤ 250 m (WFS INSPIRE); si el WFS falla (red, API, vacío o > 15 s) → `RCCOOR_Distancia` (~25 m); si no → `ninguna`.
 2. Inmuebles de cada parcela → `DNPRC`. (`DNPLOC` ya trae los inmuebles con sus datos.) Por coords, solo las 25 parcelas más cercanas, como mucho 5 a la vez; la que falla se descarta. Si fallan todas las del WFS, se repite con `RCCOOR_Distancia`; solo es error si tampoco da inmuebles.
-3. Por coords y con superficie en el anuncio, se quedan los inmuebles dentro de ±15 % (la misma regla que puntúa); si no queda ninguno, se puntúan todos.
-4. Puntuar cada inmueble y ordenar. A igual puntuación, se mantiene el orden por distancia de la parcela.
+3. Por coords y con superficie en el anuncio, se quedan los inmuebles cuya superficie coincide, directa o sumando un anexo (la misma regla que puntúa, con todos los inmuebles leídos); si no queda ninguno, se puntúan todos.
+4. Puntuar cada inmueble y ordenar: si el anuncio indica planta (o es ático sin planta → `atico`), primero los de esa planta (ninguno de otra queda por delante); luego por puntuación; a igual puntuación, por distancia a la parcela (sin distancia, al final).
 
 - `emparejar(anuncio, { catastro, almacen }, signal?)` devuelve `Resultado<Emparejamiento>`; nunca lanza. `sinResultados` → `ninguna`; `noSoportado`, `red` y `api` → error. Con `signal` abortada no se degrada ni se lanzan más consultas; el panel aborta el análisis al cambiar de anuncio u olvidar la pestaña.
 - `Sigla` y `Calle` salen de la vía del anuncio: "Calle de Alcalá" → `CL` `ALCALA`. Se quita el artículo tras el tipo (de, del, de la, d', de l', dels, de les, do, da, dos, das…); sin tipo reconocible → `CL`. Tipos en catalán, valenciano y gallego → sigla castellana (Carrer → `CL`, Avinguda → `AV`, Plaça/Praza → `PZ`, Passeig → `PS`, Travessera → `TR`, Camí/Camiño → `CM`); Rúa → `RU` (verificado con la API).
@@ -24,20 +25,27 @@ Emparejamiento { candidatos: Candidato[]; confianza: 'alta' | 'media' | 'baja' |
 ## Puntuación
 | Señal | Peso |
 |---|---|
-| Superficie construida (o útil × 1,2) dentro de ±15 % | 0,45 |
-| Planta coincide | 0,30 |
-| Año ±2 | 0,15 |
+| Superficie construida (o útil × 1,2) dentro de ±15 % (vía anexo, la mitad) | 0,45 |
+| Planta coincide | 0,35 |
+| Año ±5 (> 10 resta 0,10) | 0,10 |
 | Uso residencial | 0,10 |
 
-Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre los pesos disponibles).
-- Límites inclusivos (±15 % y ±2 años incluidos).
+Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre los pesos disponibles). Puntuación = Σ pesos obtenidos (− los restados) / Σ pesos evaluados, mínimo 0.
+- Límites inclusivos (±15 %, ±5 años; resta desde 11 años de diferencia). Año 0 en el Catastro (sin dato) → ni suma ni resta, pero su peso cuenta en el denominador.
+- Ático (`tipo: 'atico'`) sin planta → planta `atico`.
 - Si hay construida y útil, se usa la construida.
+- Superficie vía anexo (`core/anexos.ts`): si no coincide directamente y el anuncio tiene `garaje: 'incluido'` o `trastero: true` (spec 01; las menciones en la descripción no bastan, pueden ser negaciones), coincide cuando superficie del anuncio (construida o útil × 1,2) = vivienda + anexo ± 5 % del anuncio, con anexo:
+  - los m² de una plaza de la misma parcela: inmueble distinto, mismos 14 primeros car. de la RC, uso almacén/estacionamiento y ≤ 50 m² (más es un garaje comunitario);
+  - si la parcela no tiene ninguna plaza así, cualquier valor entre 20 y 35 m².
+  
+  Vale la mitad de la señal (0,225) para que la coincidencia directa quede por delante. No se aplica a un inmueble que sea él mismo almacén/estacionamiento.
 - El uso se evalúa siempre: todo anuncio ofrece vivienda.
 - Planta: ambos lados se normalizan con `core/planta.ts` a las formas canónicas de la spec 01. Catastro: `BJ`/`00`/`0` → `bajo`, `EN` → `entreplanta`, `AT` → `atico`, `SS`/`ST`/negativas → `sotano`, `01` → `1`, `OD` y desconocidas → `otro`. Si el anuncio queda en `otro`, la señal no se evalúa.
 
 ## Confianza
-- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º (sin 2.º, ventaja total). Con coords aproximadas, como máximo `media`.
-- `media`: 1.º ≥ 0,6.
+1.º y 2.º según el orden del flujo (paso 4).
+- `alta`: 1.º ≥ 0,8 y ventaja ≥ 0,2 sobre el 2.º (sin 2.º, ventaja total). La ventaja puede ser negativa (2.º de otra planta con más puntuación): entonces no hay `alta`. Con coords aproximadas, como máximo `media`.
+- `media`: 1.º ≥ 0,6 y (ventaja ≥ 0,1 o ≤ 3 empatados en cabeza: los primeros con la misma puntuación que el 1.º, incluido).
 - `baja`: resto.
 - `ninguna`: sin candidatos.
 
@@ -50,6 +58,8 @@ Las señales sin dato en el anuncio no puntúan ni penalizan (se normaliza sobre
 - [ ] El usuario puede elegir otro candidato o pegar una RC; se guarda por id de anuncio y tiene prioridad (`origen: 'manual'`).
 - [ ] Error o caída del Catastro → mensaje claro, sin romper el panel.
 - [ ] Provincias forales → "no soportado".
+- [ ] Anuncio 111109550 (5.ª, 194 m², 1985): un 2.º de 176 m² y 1935 no queda por delante de los del 5.º.
+- [ ] Con garaje incluido, la vivienda que solo cuadra sumando la plaza se conserva por coords y queda detrás de la que coincide directamente.
 
 ## Cliente Catastro (`adapters/catastro`)
 Devuelve `Resultado<T>` (`ok`/`error`), nunca lanza. Errores: `noSoportado` · `sinResultados` (cód. OVC 5, 33 y 43, o lista vacía) · `api` (otro código o JSON inválido) · `red` (fallo de fetch o HTTP no 2xx).
@@ -61,8 +71,4 @@ Formato real (fixtures en `fixtures/catastro/`):
 - `RCCOOR_Distancia` devuelve parcelas (14 car.) con `dis` en metros; en forales, lista vacía.
 - `parcelasEnRadio(coords, radioM, provincia?)`: WFS INSPIRE `CadastralParcel`, `GetFeature` por BBOX (cuadrado de lado 2·radio, EPSG:4326, orden lat,lon). GML (ISO-8859-1, solo se leen campos ASCII): `nationalCadastralReference` (14 car.) y `referencePoint` (`gml:pos` lat lon). `distancia`: metros del punto a `referencePoint`; se quedan las de `distancia ≤ radioM`, ordenadas; `direccion` vacía. Se parsea con expresiones regulares: el service worker no tiene `DOMParser`. Sin parcelas → `ExceptionReport` "No records founded" → `sinResultados`; otra excepción → `api`. Sin respuesta en 15 s → `red` ("Tiempo agotado"). Todos los métodos aceptan un `AbortSignal` opcional.
 - Coste medido (Madrid centro, 250 m): ~420 parcelas, ~0,9 MB, 9–11 s. Más de ~1 km² tarda > 1 min: no ampliar el radio sin medir. El WFS de edificios (`wfsBU`) trae superficie total y nº de viviendas del edificio (no del inmueble) y tarda ~45 s y 2 MB: no se usa.
-- Sin `ant` (solares) → `anio: 0`. `pt`/`pu` se copian tal cual (`00`, `-1`, `OD`…).
-
-## Dudas
-- Pesos y umbrales iniciales; se ajustan con 20+ anuncios reales.
-- `sfc` del Catastro incluye zonas comunes; validar con fixtures.
+- Sin `ant` (solares) → `anio: 0`. `pt`/`pu` se copian tal cual (`00`, `-1`, `OD`…). `sfc` puede traer punto de miles ("1.149" → 1149).

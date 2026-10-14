@@ -17,6 +17,7 @@ Anuncio {
   anio?: number
   descripcion: string
   mencionaTrastero: boolean; mencionaGaraje: boolean
+  garaje?: 'incluido' | 'opcional'; trastero?: boolean   // trastero: solo `true` o ausente
 }
 ```
 
@@ -46,6 +47,8 @@ Estudiado sobre 24 anuncios reales (oct. 2026): pisos, áticos, dúplex, estudio
 | `anio` | "Características básicas": "Construido en 1972" | Ausente en obra nueva y en bastantes usados. |
 | `descripcion` | Primer `.comment .adCommentsLanguage` fuera de `.new-dev-promo` | Obra nueva tiene un segundo `.comment` con la descripción de la promoción. `<br>` → salto de línea; `trim()` de espacios al principio y al final (no se trunca). Algunas descripciones ya llegan cortadas desde Idealista (p. ej. 110491789 acaba en "intermediac"): se conservan tal cual. |
 | `mencionaTrastero`, `mencionaGaraje` | Regex `/trastero/i` y `/garaje\|parking\|aparcamiento/i` sobre "Características básicas", `.info-features` y descripción | Mención literal, sin interpretar negaciones ("la vivienda no dispone de plaza" cuenta). |
+| `garaje` | "Características básicas": "Plaza de garaje incluida en el precio" → `incluido`; otra línea que empiece por "Plaza de garaje" ("… por 38.000 € adicionales") → `opcional` | Sin esa línea, `undefined`. |
+| `trastero` | "Características básicas" contiene la línea "Trastero" → `true` | Si no, ausente. Idealista no distingue incluido u opcional. |
 
 Otros datos útiles: "Situación de la vivienda" en `.details-property` y `.detail-info-tags` ("Ocupada ilegalmente", "Nuda propiedad", "Alquilada, con inquilinos").
 

@@ -20,6 +20,10 @@ export interface Anuncio {
   descripcion: string
   mencionaTrastero: boolean
   mencionaGaraje: boolean
+  /** "Plaza de garaje incluida en el precio" / "… por X € adicionales". */
+  garaje?: 'incluido' | 'opcional'
+  /** "Trastero" en "Características básicas". */
+  trastero?: boolean
 }
 
 // 02 · Emparejamiento
@@ -37,6 +41,8 @@ export interface Candidato {
   inmueble: Inmueble
   /** 0-1 */
   puntuacion: number
+  /** Metros del punto del anuncio a la parcela (solo por coords). */
+  distancia?: number
 }
 
 export type Confianza = 'alta' | 'media' | 'baja' | 'ninguna'
@@ -47,6 +53,8 @@ export interface Emparejamiento {
   candidatos: Candidato[]
   confianza: Confianza
   origen: OrigenEmparejamiento
+  /** Por coords: todos los inmuebles leídos, también los descartados por superficie. */
+  leidos?: Inmueble[]
 }
 
 // 03 · Discrepancias

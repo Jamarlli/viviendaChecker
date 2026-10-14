@@ -199,6 +199,24 @@ describe('emparejar · coords', () => {
     expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['BUENO', 'JUSTO'])
   })
 
+  it('con garaje incluido, conserva la vivienda que cuadra sumando la plaza de su parcela', async () => {
+    const viv = inmueble('P1000000000000VIV', { m2: 45, planta: '01', anio: 2000 })
+    const garaje = inmueble('P1000000000000GAR', {
+      m2: 50,
+      uso: 'Almacen-Estacionamiento',
+      planta: '-1',
+    })
+    const c = catastroFalso({ radio: ok([parcela('P1', 1)]), referencia: () => ok([viv, garaje]) })
+    const a: Anuncio = { ...soloCoords, mencionaGaraje: true, garaje: 'incluido' }
+    const r = await emparejar(a, deps(c.catastro))
+    if (!r.ok) throw new Error()
+    expect(r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['P1000000000000VIV'])
+    // Superficie vía anexo: mitad de 0,45.
+    expect(r.valor.candidatos[0]?.puntuacion).toBeCloseTo(0.775)
+    // Los leídos incluyen la plaza, que el filtro descartó.
+    expect(r.valor.leidos).toEqual([viv, garaje])
+  })
+
   it('si ninguno cumple la superficie, puntúa todos', async () => {
     const c = catastroFalso({ radio: ok([parcela('P1', 1)]), referencia: () => ok(OTROS) })
     const r = await emparejar(soloCoords, deps(c.catastro))
@@ -218,7 +236,10 @@ describe('emparejar · coords', () => {
       referencia: (pc) => ok([inmueble(pc, { m2: 100, planta: '01', anio: 2000 })]),
     })
     const r = await emparejar(soloCoords, deps(c.catastro))
-    expect(r.ok && r.valor.candidatos.map((x) => x.inmueble.rc)).toEqual(['CERCA', 'LEJOS'])
+    expect(r.ok && r.valor.candidatos.map((x) => [x.inmueble.rc, x.distancia])).toEqual([
+      ['CERCA', 3],
+      ['LEJOS', 200],
+    ])
   })
 
   it('aproximadas → nunca alta', async () => {
