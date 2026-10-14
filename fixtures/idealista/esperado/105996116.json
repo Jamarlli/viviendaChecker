@@ -1,0 +1,23 @@
+{
+  "portal": "idealista",
+  "id": "105996116",
+  "url": "https://www.idealista.com/inmueble/105996116/",
+  "precio": 2280000,
+  "tipo": "atico",
+  "obraNueva": true,
+  "direccion": {
+    "via": "Calle Arturo Soria",
+    "numero": "161"
+  },
+  "municipio": "Madrid",
+  "provincia": "Madrid",
+  "coords": {
+    "lat": 40.4559985,
+    "lon": -3.6571683,
+    "aproximada": false
+  },
+  "m2Construidos": 312,
+  "descripcion": "ARTURO SORIA 161 es un nuevo proyecto residencial de Terralpa en el mejor Madrid donde toda la comodidad está a tu alcance.\n\nCuenta con 6 magníficas viviendas con terraza, 2 áticos de ensueño con amplísimas terrazas y piscina incluida y 2 bajos con un jardín que rodea la vivienda. La localización es inmejorable gracias a la salida directa a la M30, la cercanía al metro Arturo Soria, ubicado a 1 minuto del proyecto, y al centro comercial Arturo Soria Plaza, por no hablar de la amplia oferta de colegios, parques y pequeños comercios que hacen de esta zona un lugar para vivir en Madrid con la más alta calidad de vida.\n\nEl proyecto, de la mano del arquitecto Martín de Lucio y el estudio de interiorismo VillaBlanch, representa la sofisticación natural gracias a la elección de materiales nobles como la piedra y la madera que hacen a todo el conjunto elegante y atemporal.\n\nArturo Soria 161 dispone de un jardín, que enmarca todo el conjunto, convirtiéndolo en un pequeño vergel en medio de Madrid. Los propietarios podrán disfrutar de una piscina exterior y solárium donde relajarse.\n\nViviendas con amplias terrazas y jardines, así como unas calidades de máximo nivel cuidadas en cada detalle.\n\nUn ejemplo de arquitectura avanzada, calidad y eficiencia energética.\n\nTodas las viviendas cuentan además con 2 plazas de garaje y trastero.",
+  "mencionaTrastero": true,
+  "mencionaGaraje": true
+}

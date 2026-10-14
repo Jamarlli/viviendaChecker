@@ -8,3 +8,6 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+
+# Anuncios reales sin sanear (scripts/sanear-fixture.mjs)
+fixtures/idealista/raw/

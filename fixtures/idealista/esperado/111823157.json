@@ -1,0 +1,21 @@
+{
+  "portal": "idealista",
+  "id": "111823157",
+  "url": "https://www.idealista.com/inmueble/111823157/",
+  "precio": 820000,
+  "tipo": "piso",
+  "obraNueva": false,
+  "municipio": "Madrid",
+  "provincia": "Madrid",
+  "coords": {
+    "lat": 40.4151512,
+    "lon": -3.7035988,
+    "aproximada": true
+  },
+  "planta": "2",
+  "m2Construidos": 87,
+  "anio": 1935,
+  "descripcion": "Situada en una elegante finca clásica de 1935, a escasos pasos de la Puerta del Sol, esta luminosa vivienda exterior representa una excelente oportunidad para disfrutar del auténtico centro histórico de Madrid desde una de sus ubicaciones más emblemáticas.\n\nLa propiedad cuenta con 87 m² construidos y destaca por su agradable luminosidad, gracias a su orientación este y a sus tres balcones exteriores, que aportan carácter, amplitud visual y una constante conexión con el entorno urbano.\n\nLa distribución ha sido cuidadosamente concebida para optimizar cada espacio, ofreciendo un acogedor salón-comedor, cocina independiente totalmente equipada, dos dormitorios, un cuarto de baño, recibidor y una práctica zona de lavandería. El dormitorio principal disfruta además de espacio suficiente para incorporar una zona de vestidor.\n\nReformada integralmente en 2011 y mantenida en excelente estado de conservación, la vivienda incorpora prestaciones de confort poco habituales en el centro de Madrid, como calefacción por suelo radiante, climatización por conductos individualizada, ventanas con doble acristalamiento y sistema de alarma.\n\nLa cocina se entrega completamente equipada con electrodomésticos de alta calidad, incluyendo frigorífico, lavavajillas, placa de inducción, grill, campana extractora, vinoteca y lavadora-secadora.\n\nUbicada entre la Puerta del Sol y el Barrio de las Letras, la propiedad disfruta de un entorno privilegiado rodeado de historia, cultura, gastronomía y comercio. Una vivienda ideal tanto como residencia principal o segunda residencia, así como una sólida inversión patrimonial en una de las zonas con mayor demanda y proyección de la capital.",
+  "mencionaTrastero": false,
+  "mencionaGaraje": false
+}
