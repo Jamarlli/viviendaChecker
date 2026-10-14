@@ -1,5 +1,5 @@
-// Extensión cargada en Chromium con Idealista servido desde fixtures y Catastro grabado o real.
-// `npm run e2e`: grabado. `E2E_CATASTRO=real`: API real; con `E2E_GRABAR=1` además graba.
+// ExtensiÃ³n cargada en Chromium con Idealista servido desde fixtures y Catastro grabado o real.
+// `npm run e2e`: grabado. `E2E_CATASTRO=real`: API real; con `E2E_GRABAR=1` ademÃ¡s graba.
 // `E2E_HEADED=1`: con ventana.
 import { test as base, chromium, type BrowserContext, type Page } from '@playwright/test'
 import { createHash } from 'node:crypto'
@@ -11,38 +11,12 @@ const IDEALISTA = 'fixtures/idealista'
 const GRABACIONES = 'fixtures/catastro/e2e'
 export const REAL = process.env.E2E_CATASTRO === 'real'
 const GRABAR = REAL && !!process.env.E2E_GRABAR
-const PAUSA_REAL_MS = 400
 
 export const urlAnuncio = (id: string) => `https://www.idealista.com/inmueble/${id}/`
 
-const fichero = (u: string) =>
-  join(GRABACIONES, createHash('sha1').update(u).digest('hex').slice(0, 16) + '.json')
-
-function esJson(texto: string): boolean {
-  try {
-    JSON.parse(texto)
-    return true
-  } catch {
-    return false
-  }
-}
-
-let ultima = 0
-let cola: Promise<unknown> = Promise.resolve()
-/** En serie y con pausa: el Catastro corta las ráfagas. */
-function turno<T>(f: () => Promise<T>): Promise<T> {
-  const t = cola.then(async () => {
-    const espera = ultima + PAUSA_REAL_MS - Date.now()
-    if (espera > 0) await new Promise((r) => setTimeout(r, espera))
-    try {
-      return await f()
-    } finally {
-      ultima = Date.now()
-    }
-  })
-  cola = t.catch(() => {})
-  return t
-}
+const TIPOS = { json: 'application/json', xml: 'text/xml' } as const
+const fichero = (u: string, ext: keyof typeof TIPOS) =>
+  join(GRABACIONES, `${createHash('sha1').update(u).digest('hex').slice(0, 16)}.${ext}`)
 
 async function enrutar(context: BrowserContext, faltan: string[]) {
   // Nada sale a la red salvo lo servido abajo (las rutas posteriores tienen prioridad).
@@ -55,19 +29,20 @@ async function enrutar(context: BrowserContext, faltan: string[]) {
   })
   await context.route('https://ovc.catastro.meh.es/**', async (r) => {
     const u = r.request().url()
-    const f = fichero(u)
     if (!REAL) {
-      if (existsSync(f))
-        return r.fulfill({ contentType: 'application/json', body: readFileSync(f) })
+      for (const ext of ['json', 'xml'] as const) {
+        const f = fichero(u, ext)
+        if (existsSync(f)) return r.fulfill({ contentType: TIPOS[ext], body: readFileSync(f) })
+      }
       faltan.push(u)
       return r.fulfill({ status: 503 })
     }
-    const res = await turno(() => r.fetch())
+    const res = await r.fetch()
     const cuerpo = await res.text()
-    // En mantenimiento el Catastro responde 200 con XML: no se graba.
-    if (GRABAR && res.ok() && esJson(cuerpo)) {
+    // En mantenimiento responde 200 con un error XML (`lerr`): no se graba.
+    if (GRABAR && res.ok() && !cuerpo.includes('<lerr>')) {
       mkdirSync(GRABACIONES, { recursive: true })
-      writeFileSync(f, cuerpo)
+      writeFileSync(fichero(u, cuerpo.trimStart().startsWith('<') ? 'xml' : 'json'), cuerpo)
     }
     return r.fulfill({ response: res, body: cuerpo })
   })
@@ -75,9 +50,9 @@ async function enrutar(context: BrowserContext, faltan: string[]) {
 
 export interface Extension {
   context: BrowserContext
-  /** Peticiones al Catastro sin grabación (modo grabado). */
+  /** Peticiones al Catastro sin grabaciÃ³n (modo grabado). */
   faltan: string[]
-  /** Abre el anuncio y el panel fijado a su pestaña, a 360 px. */
+  /** Abre el anuncio y el panel fijado a su pestaÃ±a, a 360 px. */
   abrir(idAnuncio: string): Promise<{ anuncio: Page; panel: Page }>
 }
 

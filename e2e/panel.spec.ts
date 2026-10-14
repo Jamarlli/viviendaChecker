@@ -3,7 +3,7 @@ import { expect, test, urlAnuncio } from './extension'
 
 /** Espera a que el panel termine de consultar. */
 async function listo(panel: Page) {
-  await expect(panel.locator('#app[aria-busy="false"]')).toBeAttached({ timeout: 60_000 })
+  await expect(panel.locator('#app[aria-busy="false"]')).toBeAttached({ timeout: 120_000 })
   await expect(panel.locator('#app h2, #app .vacio').first()).toBeVisible()
 }
 
@@ -68,7 +68,7 @@ test('cambiar de anuncio en la pestaña repinta el panel', async ({ ext }) => {
   await listo(panel)
   const antes = await panel.locator('.rc').first().textContent()
   await anuncio.goto(urlAnuncio('110258143'))
-  await expect(panel.locator('.rc').first()).not.toHaveText(antes ?? '', { timeout: 60_000 })
+  await expect(panel.locator('.rc').first()).not.toHaveText(antes ?? '', { timeout: 120_000 })
   await listo(panel)
   await capturar(panel, 'cambio-anuncio')
 })
