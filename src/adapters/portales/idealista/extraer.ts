@@ -11,7 +11,7 @@ export function idDeUrl(url: string): string | undefined {
     return undefined
   }
   if (!/(^|\.)idealista\.com$/.test(u.hostname)) return undefined
-  return /^\/(?:[a-z]{2}\/)?inmueble\/(\d+)\/?$/.exec(u.pathname)?.[1]
+  return /^\/inmueble\/(\d+)\/?$/.exec(u.pathname)?.[1]
 }
 
 const texto = (el: Element | null | undefined) => el?.textContent?.trim() ?? ''
@@ -35,8 +35,8 @@ export function parsearSuperficies(lineas: string[]): {
   m2Utiles?: number
 } {
   const t = lineas.join('\n')
-  const c = /([\d.]+)\s*m²\s*construidos/.exec(t)?.[1]
-  const u = /([\d.]+)\s*m²\s*útiles/.exec(t)?.[1]
+  const c = /([\d.]+(?:,\d+)?)\s*m²\s*construidos/.exec(t)?.[1]
+  const u = /([\d.]+(?:,\d+)?)\s*m²\s*útiles/.exec(t)?.[1]
   return {
     ...(c && { m2Construidos: numero(c) }),
     ...(u && { m2Utiles: numero(u) }),
@@ -85,13 +85,14 @@ function ubicacion(doc: Document): Pick<Anuncio, 'direccion' | 'municipio' | 'pr
 
 /** El `var config` de la página no se puede ejecutar desde el content script: se lee con regex. */
 function coordenadas(doc: Document, scripts: string): Anuncio['coords'] {
-  const c = /center=(-?[\d.]+)%2C(-?[\d.]+)/.exec(scripts)
+  const c = /center=(-?[\d.]+)(?:%2C|,)(-?[\d.]+)/.exec(scripts)
   if (!c) return undefined
   const visibilidad = /["']?addressVisibility["']?\s*:\s*["'](\w+)["']/.exec(scripts)?.[1]
   const marcador = /markerVisible\s*:\s*(\d+)/.exec(scripts)?.[1]
   const aproximada = visibilidad
     ? visibilidad !== 'EXACT'
-    : !!doc.querySelector('.no-show-address-feedback') || marcador !== '1'
+    : !!doc.querySelector('.no-show-address-feedback') ||
+      (marcador !== undefined && marcador !== '1')
   return { lat: Number(c[1]), lon: Number(c[2]), aproximada }
 }
 

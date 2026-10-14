@@ -21,7 +21,7 @@ Anuncio {
 ```
 
 ## Criterios
-- [ ] URL `idealista.com/inmueble/{id}/` → se extrae; otras URLs → `null`.
+- [ ] URL `idealista.com/inmueble/{id}/` → se extrae; otras URLs → `null`. Las versiones en otros idiomas (`/en/`, `/ca/`…) también → `null`: el MVP solo soporta castellano.
 - [ ] Extrae cada campo presente; los ausentes quedan `undefined`, sin fallar.
 - [ ] Parsea "90 m² construidos, 75 m² útiles", "Planta 3ª exterior", "Bajo", "Construido en 1975".
 - [ ] Marca `coords.aproximada` cuando el portal indica ubicación aproximada.

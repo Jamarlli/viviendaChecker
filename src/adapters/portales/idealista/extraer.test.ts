@@ -32,11 +32,12 @@ describe('idDeUrl', () => {
   it.each([
     ['https://www.idealista.com/inmueble/104570830/', '104570830'],
     ['https://www.idealista.com/inmueble/104570830/?xtmc=1#foto', '104570830'],
-    ['https://www.idealista.com/en/inmueble/104570830/', '104570830'],
     ['https://www.idealista.com/inmueble/104570830', '104570830'],
   ])('%s → %s', (u, id) => expect(idDeUrl(u)).toBe(id))
 
   it.each([
+    'https://www.idealista.com/en/inmueble/104570830/',
+    'https://www.idealista.com/ca/inmueble/104570830/',
     'https://www.idealista.com/venta-viviendas/madrid/',
     'https://www.idealista.com/inmueble/abc/',
     'https://www.fotocasa.es/inmueble/104570830/',
@@ -66,19 +67,29 @@ describe('extraerAnuncio', () => {
     expect(extraerAnuncio(d, url('1'))?.precio).toBe(250000)
   })
 
-  it('aproximada por markerVisible o aviso si falta addressVisibility', () => {
-    const conAviso = doc(
-      `<script>var config = {"src":"x?center=40.1%2C-3.2&z=1"};</script><div class="no-show-address-feedback"></div>`,
-    )
-    expect(extraerAnuncio(conAviso, url('1'))?.coords).toEqual({
+  describe('aproximada sin addressVisibility', () => {
+    const coords = (script: string, html = '') =>
+      extraerAnuncio(doc(`<script>${script}</script>${html}`), url('1'))?.coords
+    const aviso = '<div class="no-show-address-feedback"></div>'
+    const mapa = 'var config = {"src":"x?center=40.1%2C-3.2&z=1"};'
+
+    it('solo el aviso decide (sin markerVisible)', () => {
+      expect(coords(mapa, aviso)).toEqual({ lat: 40.1, lon: -3.2, aproximada: true })
+      expect(coords(mapa)?.aproximada).toBe(false)
+    })
+
+    it('markerVisible ≠ 1 → aproximada; = 1 → exacta', () => {
+      expect(coords(mapa + 'var mapConfig = { markerVisible: 2 };')?.aproximada).toBe(true)
+      expect(coords(mapa + 'var mapConfig = { markerVisible: 1 };')?.aproximada).toBe(false)
+    })
+  })
+
+  it('center con coma literal', () => {
+    expect(extraerAnuncio(doc('<script>x?center=40.1,-3.2&z</script>'), url('1'))?.coords).toEqual({
       lat: 40.1,
       lon: -3.2,
-      aproximada: true,
+      aproximada: false,
     })
-    const exacta = doc(
-      `<script>var config = {"src":"x?center=40.1%2C-3.2"}; var mapConfig = { markerVisible: 1 };</script>`,
-    )
-    expect(extraerAnuncio(exacta, url('1'))?.coords?.aproximada).toBe(false)
   })
 
   it('descripción: ignora .new-dev-promo y convierte <br>', () => {
@@ -95,6 +106,7 @@ describe('parsearSuperficies', () => {
   it.each([
     ['90 m² construidos, 75 m² útiles', { m2Construidos: 90, m2Utiles: 75 }],
     ['1.200 m² construidos', { m2Construidos: 1200 }],
+    ['85,5 m² construidos, 70,25 m² útiles', { m2Construidos: 85.5, m2Utiles: 70.25 }],
     ['Parcela de 1.500 m²', {}],
   ])('%s', (t, r) => expect(parsearSuperficies([t])).toEqual(r))
 })
